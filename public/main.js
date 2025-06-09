@@ -151,6 +151,17 @@ function moveItem(index, direction) {
     updateConfigList();
 }
 
+function deleteAllItems() {
+    if (configuraciones.length === 0) {
+        alert('No hay configuraciones para eliminar');
+        return;
+    }
+    if (confirm('Are you sure you want to delete all poses?')) {
+        configuraciones.length = 0; 
+        updateConfigList();
+    }
+}
+
 function deleteItem(index) {
     if (index < 0 || index >= configuraciones.length) {
         console.error('Índice fuera de rango:', index);
