@@ -5,21 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coco Pose Builder</title>
 
+    <link rel="icon" href="assets/icons/robot.png" type="image/png">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>🤖 Coco Pose Builder</h1>
+        <h1>Coco Pose Builder <img src="assets/icons/robot.png" alt="Robot Icon" class="icon"/></h1>        
         
         <div class="button-group">
             <button class="btn" onclick="guardarConfiguracion()">
-                💾 Save
+                Save
             </button>
             <button class="btn secondary" onclick="resetearJoints()">
-                🔄 Reset Joints
+                Reset Joints
             </button>
             <button class="btn secondary" onclick="exportarTxt()">
-                📄 Export
+                Export
             </button>
             <div id="status" class="status disconnected">
                 Disconnected
@@ -31,9 +32,9 @@
         </div>
 
         <div class="configurations">
-            <h3>📋 Configuraciones Guardadas</h3>
+            <h3>Saved Poses</h3>
             <div id="configList" class="config-list">
-                <div class="config-item">No hay configuraciones guardadas</div>
+                <div class="config-item">There are no saved poses.</div>
             </div>
         </div>
     </div>

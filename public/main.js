@@ -136,6 +136,21 @@ function exportarTxt() {
     URL.revokeObjectURL(a.href);
 }
 
+function moveItem(index, direction) {
+    if (index < 0 || index >= configuraciones.length) {
+        console.error('Índice fuera de rango:', index);
+        return;
+    }
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= configuraciones.length) {
+        console.error('Movimiento fuera de rango:', newIndex);
+        return;
+    }
+    const item = configuraciones.splice(index, 1)[0];
+    configuraciones.splice(newIndex, 0, item);
+    updateConfigList();
+}
+
 function deleteItem(index) {
     if (index < 0 || index >= configuraciones.length) {
         console.error('Índice fuera de rango:', index);
@@ -148,16 +163,18 @@ function deleteItem(index) {
 
 function updateConfigList() {
     if (configuraciones.length === 0) {
-        configListDiv.innerHTML = '<div class="config-item">No hay configuraciones guardadas</div>';
+        configListDiv.innerHTML = '<div class="config-item">There are no saved poses.</div>';
         return;
     }
     
     configListDiv.innerHTML = configuraciones.map((config, index) => 
         `<div class="config-item-container">
             <div class="config-item">
-                Config ${index + 1}: [${config.map(val => val.toFixed(2)).join(', ')}]
+                Pose ${index + 1}: [${config.map(val => val.toFixed(2)).join(', ')}]
             </div>
-            <button class="btn delete" onclick="deleteItem(${index})">🗑️</button>
+            <img class="move" src="assets/icons/arrow-up.png" alt="Move Up" onclick="moveItem(${index}, -1)"/>
+            <img class="move" src="assets/icons/arrow-down.png" alt="Move Down" onclick="moveItem(${index}, 1)"/>
+            <img class="delete" src="assets/icons/trash.png" alt="Move Down" onclick="deleteItem(${index})"/>
         </div>`
     ).join('');
 }
