@@ -65,19 +65,18 @@ function createSliders() {
 
 // Eventos de socket
 socket.on('connect', () => {
-    console.log('Conectado al servidor');
+    console.log('Connected to server');
     statusElement.textContent = 'Connected';
     statusElement.className = 'status connected';
 });
 
 socket.on('disconnect', () => {
-    console.log('Desconectado del servidor');
+    console.log('Disconnected from server');
     statusElement.textContent = 'Disconnected';
     statusElement.className = 'status disconnected';
 });
 
 socket.on('joint_positions', (positions) => {
-    console.log('Posiciones recibidas:', positions);
     positions.forEach((position, index) => {
         const joint = jointNames[index];
         if (sliders[joint]) {
@@ -97,17 +96,39 @@ socket.on('joint_updated', (data) => {
 });
 
 socket.on('configuration_saved', (data) => {
-    console.log('Configuración guardada:', data.positions);
     configuraciones.push([...data.positions]);
     updateConfigList();
 });
 
 // Funciones de control
-function guardarConfiguracion() {
+function importPoses() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.txt';
+    configuraciones.length = 0; 
+    input.onchange = () => {
+        const file = input.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const content = e.target.result;
+            const lines = content.split('\n').filter(line => line.trim() !== '');
+            configuraciones.push(...lines.map(line =>
+                line.split(',').map(val => parseFloat(val.trim()))
+            ));
+            updateConfigList();
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+}
+
+function savePose() {
     socket.emit('save_configuration');
 }
 
-function resetearJoints() {
+function reseatJoints() {
     jointNames.forEach((joint, index) => {
         sliders[joint].value = 0;
         document.getElementById(`${joint}_val`).textContent = '0.00';
@@ -118,7 +139,7 @@ function resetearJoints() {
     });
 }
 
-function exportarTxt() {
+function exportPoses() {
     if (configuraciones.length === 0) {
         alert('No hay configuraciones para exportar');
         return;
@@ -138,12 +159,12 @@ function exportarTxt() {
 
 function moveItem(index, direction) {
     if (index < 0 || index >= configuraciones.length) {
-        console.error('Índice fuera de rango:', index);
+        console.error('Index out of range:', index);
         return;
     }
     const newIndex = index + direction;
     if (newIndex < 0 || newIndex >= configuraciones.length) {
-        console.error('Movimiento fuera de rango:', newIndex);
+        console.error('Move out of bounds:', newIndex);
         return;
     }
     const item = configuraciones.splice(index, 1)[0];
@@ -164,7 +185,7 @@ function deleteAllItems() {
 
 function deleteItem(index) {
     if (index < 0 || index >= configuraciones.length) {
-        console.error('Índice fuera de rango:', index);
+        console.error('Index out of range:', index);
         return;
     }
     
@@ -193,5 +214,5 @@ function updateConfigList() {
 // Inicializar la aplicación
 document.addEventListener('DOMContentLoaded', () => {
     createSliders();
-    console.log('Aplicación inicializada');
+    console.log('Init application');
 });

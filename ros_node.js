@@ -27,27 +27,22 @@ class JointController {
 
     async init() {
         try {
-            console.log('Inicializando ROS2...');
             await rclnodejs.init();
             
-            console.log('Creando nodo ROS2...');
             this.node = rclnodejs.createNode('joint_controller_web');
             
-            console.log('Creando publisher para joint_states...');
             this.publisher = this.node.createPublisher('sensor_msgs/msg/JointState', '/joint_states');
             
-            console.log('Creando timer...');
             this.timer = this.node.createTimer(100, () => {
                 this.publishJointStates();
             });
             
-            console.log('Iniciando spinner de ROS2...');
             rclnodejs.spin(this.node);
             
-            console.log('ROS2 inicializado correctamente!');
+            console.log('ROS2 node and publisher initialized successfully.');
             
         } catch (error) {
-            console.error('Error inicializando ROS2:', error);
+            console.error('Error initializing ROS2 node:', error);
             throw error;
         }
     }
@@ -67,15 +62,13 @@ class JointController {
             this.publisher.publish(message_final);
             
         } catch (error) {
-            console.error('Error publicando joint states:', error);
-            console.error('Intentando con timestamp simplificado...');
+            console.error('Error publishing joint states:', error);
         }
     }
 
     updateJointPosition(jointIndex, position) {
         if (jointIndex >= 0 && jointIndex < this.jointPositions.length) {
             this.jointPositions[jointIndex] = parseFloat(position);
-            console.log(`Joint ${jointIndex + 1} actualizado a: ${position}`);
         }
     }
 
@@ -89,9 +82,7 @@ class JointController {
     }
 
     setupSocketIO() {
-        this.io.on('connection', (socket) => {
-            console.log('Cliente conectado:', socket.id);
-            
+        this.io.on('connection', (socket) => {            
             socket.emit('joint_positions', this.jointPositions);
             
             socket.on('update_joint', (data) => {
@@ -102,25 +93,22 @@ class JointController {
             });
             
             socket.on('save_configuration', () => {
-                console.log('Configuración guardada:', this.jointPositions);
                 socket.emit('configuration_saved', { positions: [...this.jointPositions] });
             });
             
             socket.on('disconnect', () => {
-                console.log('Cliente desconectado:', socket.id);
+                console.log('Disconnected from client');
             });
         });
     }
 
     startServer(port = 3000) {
         this.server.listen(port, () => {
-            console.log(`Servidor web iniciado en http://localhost:${port}`);
+            console.log(`Web server is running on http://localhost:${port}`);
         });
     }
 
-    async shutdown() {
-        console.log('Cerrando aplicación...');
-        
+    async shutdown() {        
         if (this.timer) {
             this.timer.cancel();
         }
@@ -141,29 +129,22 @@ async function main() {
         await controller.init();
         controller.startServer(3000);
         
-        console.log('\n=== Robot Joint Controller Iniciado ===');
-        console.log('- Servidor web: http://localhost:3000');
-        console.log('- Nodo ROS2: joint_controller_web');
-        console.log('- Publicando en: /joint_states');
-        console.log('- Presiona Ctrl+C para salir\n');
+        console.log('- Web server: http://localhost:3000');
+        console.log('- Press Ctrl+C to exit');
         
     } catch (error) {
-        console.error('Error en main:', error);
         process.exit(1);
     }
     
     process.on('SIGINT', async () => {
-        console.log('\nRecibida señal SIGINT, cerrando...');
         await controller.shutdown();
     });
     
     process.on('SIGTERM', async () => {
-        console.log('\nRecibida señal SIGTERM, cerrando...');
         await controller.shutdown();
     });
 }
 
 main().catch(error => {
-    console.error('Error fatal:', error);
     process.exit(1);
 });
