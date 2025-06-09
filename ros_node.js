@@ -56,8 +56,6 @@ class JointController {
         try {
             const currentTime = this.node.now();
 
-            console.log(currentTime.toMsg());
-
             const JointState = rclnodejs.require('sensor_msgs').msg.JointState;
             const message_final = new JointState();
             message_final.header.stamp = currentTime.toMsg(); 

@@ -11,24 +11,23 @@
     <div class="container">
         <h1>🤖 Coco Pose Builder</h1>
         
-        <div id="status" class="status disconnected">
-            Desconectado del servidor
-        </div>
-
-        <div id="sliders" class="controls">
-            <!-- sliders se autogeneran -->
-        </div>
-        
         <div class="button-group">
             <button class="btn" onclick="guardarConfiguracion()">
-                💾 Guardar Configuración
+                💾 Save
             </button>
             <button class="btn secondary" onclick="resetearJoints()">
                 🔄 Reset Joints
             </button>
             <button class="btn secondary" onclick="exportarTxt()">
-                📄 Exportar TXT
+                📄 Export
             </button>
+            <div id="status" class="status disconnected">
+                Disconnected
+            </div>
+        </div>
+
+        <div id="sliders" class="controls">
+            <!-- sliders se autogeneran -->
         </div>
 
         <div class="configurations">

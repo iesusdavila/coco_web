@@ -52,13 +52,13 @@ function createSliders() {
 // Eventos de socket
 socket.on('connect', () => {
     console.log('Conectado al servidor');
-    statusElement.textContent = 'Conectado al servidor ROS2';
+    statusElement.textContent = 'Connected';
     statusElement.className = 'status connected';
 });
 
 socket.on('disconnect', () => {
     console.log('Desconectado del servidor');
-    statusElement.textContent = 'Desconectado del servidor';
+    statusElement.textContent = 'Disconnected';
     statusElement.className = 'status disconnected';
 });
 

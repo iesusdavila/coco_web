@@ -26,20 +26,32 @@ h1 {
 
 .status {
     text-align: center;
-    margin-bottom: 20px;
     padding: 10px;
     border-radius: 8px;
     font-weight: bold;
 }
 
 .status.connected {
-    background: rgba(76, 175, 80, 0.3);
-    color: #4CAF50;
+    color: #1BEE23;
 }
 
 .status.disconnected {
-    background: rgba(244, 67, 54, 0.3);
     color: #F44336;
+}
+
+.status::before {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+.status.connected::before {
+    background: #1BEE23;
+}
+.status.disconnected::before {
+    background: #F44336;
 }
 
 .controls {
@@ -118,9 +130,12 @@ h1 {
 
 .button-group {
     display: flex;
-    gap: 15px;
+    gap: 20px;
     justify-content: center;
     flex-wrap: wrap;
+    overflow: auto;
+    flex-direction: row;
+    margin-bottom: 25px;
 }
 
 .btn {
