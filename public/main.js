@@ -5,6 +5,20 @@ const socket = io();
 const jointNames = Array.from({ length: 12 }, (_, i) => `joint_${i + 1}`);
 const sliders = {};
 const configuraciones = [];
+const jointsLimits = {
+    joint_1: [-0.78, 0.78],
+    joint_2: [-0.3, 0.3],
+    joint_3: [-0.52, 0.52],
+    joint_4: [-0.26, 0.78],
+    joint_5: [-0.75, 1.50],
+    joint_6: [0.05, 0.98],
+    joint_7: [-0.69, 0.69],
+    joint_8: [0.15, 1.50],
+    joint_9: [-0.75, 1.50],
+    joint_10: [0.05, 0.98],
+    joint_11: [-0.69, 0.69],
+    joint_12: [0.15, 1.50]
+};
 
 // Elementos DOM
 const statusElement = document.getElementById('status');
@@ -21,8 +35,8 @@ function createSliders() {
             <div class="slider-container">
                 <input type="range" 
                         class="slider" 
-                        min="-3.14" 
-                        max="3.14" 
+                        min="${jointsLimits[joint][0]}"
+                        max="${jointsLimits[joint][1]}"
                         step="0.01" 
                         value="0" 
                         id="${joint}">
@@ -122,6 +136,16 @@ function exportarTxt() {
     URL.revokeObjectURL(a.href);
 }
 
+function deleteItem(index) {
+    if (index < 0 || index >= configuraciones.length) {
+        console.error('Índice fuera de rango:', index);
+        return;
+    }
+    
+    configuraciones.splice(index, 1);
+    updateConfigList();
+}
+
 function updateConfigList() {
     if (configuraciones.length === 0) {
         configListDiv.innerHTML = '<div class="config-item">No hay configuraciones guardadas</div>';
@@ -129,8 +153,11 @@ function updateConfigList() {
     }
     
     configListDiv.innerHTML = configuraciones.map((config, index) => 
-        `<div class="config-item">
-            Config ${index + 1}: [${config.map(val => val.toFixed(2)).join(', ')}]
+        `<div class="config-item-container">
+            <div class="config-item">
+                Config ${index + 1}: [${config.map(val => val.toFixed(2)).join(', ')}]
+            </div>
+            <button class="btn delete" onclick="deleteItem(${index})">🗑️</button>
         </div>`
     ).join('');
 }
