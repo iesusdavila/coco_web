@@ -4,7 +4,7 @@ const socket = io();
 // Variables globales
 const jointNames = Array.from({ length: 12 }, (_, i) => `joint_${i + 1}`);
 const sliders = {};
-const configuraciones = [];
+const poses = [];
 const jointsLimits = {
     joint_1: [-0.78, 0.78],
     joint_2: [-0.3, 0.3],
@@ -96,7 +96,7 @@ socket.on('joint_updated', (data) => {
 });
 
 socket.on('configuration_saved', (data) => {
-    configuraciones.push([...data.positions]);
+    poses.push([...data.positions, parseFloat(document.getElementById('timerInput').value)]);
     updateConfigList();
 });
 
@@ -105,7 +105,7 @@ function importPoses() {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.txt';
-    configuraciones.length = 0; 
+    poses.length = 0; 
     input.onchange = () => {
         const file = input.files[0];
         if (!file) return;
@@ -114,7 +114,7 @@ function importPoses() {
         reader.onload = (e) => {
             const content = e.target.result;
             const lines = content.split('\n').filter(line => line.trim() !== '');
-            configuraciones.push(...lines.map(line =>
+            poses.push(...lines.map(line =>
                 line.split(',').map(val => parseFloat(val.trim()))
             ));
             updateConfigList();
@@ -125,6 +125,15 @@ function importPoses() {
 }
 
 function savePose() {
+    if (!document.getElementById('timerInput').value) {
+        alert('Please enter a timer value before saving the pose.');
+        return;
+    }
+    const timerValue = parseFloat(document.getElementById('timerInput').value);
+    if (isNaN(timerValue) || timerValue <= 0 || timerValue > 60) {
+        alert('Please enter a valid timer value greater than 0 and less than or equal to 60 seconds.');
+        return;
+    }
     socket.emit('save_configuration');
 }
 
@@ -140,12 +149,12 @@ function reseatJoints() {
 }
 
 function exportPoses() {
-    if (configuraciones.length === 0) {
-        alert('No hay configuraciones para exportar');
+    if (poses.length === 0) {
+        alert('No hay poses para exportar');
         return;
     }
     
-    const contenido = configuraciones.map(config => 
+    const contenido = poses.map(config => 
         config.map(val => val.toFixed(3)).join(',')
     ).join('\n');
     
@@ -158,52 +167,56 @@ function exportPoses() {
 }
 
 function moveItem(index, direction) {
-    if (index < 0 || index >= configuraciones.length) {
+    if (index < 0 || index >= poses.length) {
         console.error('Index out of range:', index);
         return;
     }
     const newIndex = index + direction;
-    if (newIndex < 0 || newIndex >= configuraciones.length) {
+    if (newIndex < 0 || newIndex >= poses.length) {
         console.error('Move out of bounds:', newIndex);
         return;
     }
-    const item = configuraciones.splice(index, 1)[0];
-    configuraciones.splice(newIndex, 0, item);
+    const item = poses.splice(index, 1)[0];
+    poses.splice(newIndex, 0, item);
     updateConfigList();
 }
 
 function deleteAllItems() {
-    if (configuraciones.length === 0) {
-        alert('No hay configuraciones para eliminar');
+    if (poses.length === 0) {
+        alert('No hay poses para eliminar');
         return;
     }
     if (confirm('Are you sure you want to delete all poses?')) {
-        configuraciones.length = 0; 
+        poses.length = 0; 
         updateConfigList();
     }
 }
 
 function deleteItem(index) {
-    if (index < 0 || index >= configuraciones.length) {
+    if (index < 0 || index >= poses.length) {
         console.error('Index out of range:', index);
         return;
     }
     
-    configuraciones.splice(index, 1);
+    poses.splice(index, 1);
     updateConfigList();
 }
 
 function updateConfigList() {
-    if (configuraciones.length === 0) {
+    if (poses.length === 0) {
         configListDiv.innerHTML = '<div class="config-item">There are no saved poses.</div>';
         return;
     }
     
-    configListDiv.innerHTML = configuraciones.map((config, index) => 
+    configListDiv.innerHTML = poses.map((config, index) => 
         `<div class="config-item-container">
-            <div class="config-item">
-                Pose ${index + 1}: [${config.map(val => val.toFixed(2)).join(', ')}]
+            <div class="index-item">
+                <span class="index">${index + 1}</span>
             </div>
+            <div class="config-item">
+                ${config.slice(0, -1).map((val, i) => `<span class="joint-value">${jointNames[i].replace('_', ' ')}: ${val.toFixed(2)}</span>`).join(', ')}
+            </div>
+            <span class="timer-value">${config[config.length - 1].toFixed(1)} s</span>
             <img class="move" src="assets/icons/arrow-up.png" alt="Move Up" onclick="moveItem(${index}, -1)"/>
             <img class="move" src="assets/icons/arrow-down.png" alt="Move Down" onclick="moveItem(${index}, 1)"/>
             <img class="delete" src="assets/icons/trash.png" alt="Move Down" onclick="deleteItem(${index})"/>

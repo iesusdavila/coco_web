@@ -118,6 +118,64 @@ h1 {
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
 
+.timer-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    overflow: auto;
+    flex-direction: row;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.timer {
+    width: 50%;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.timer:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.timer label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 10px;
+}
+
+.timer-input::-webkit-outer-spin-button,
+.timer-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.timer-input {
+  -moz-appearance: textfield;
+}
+
+.timer-input {
+  padding: 10px 12px;
+  font-size: 16px;
+  border: 2px solid #dddbe3;
+  border-radius: 8px;
+  outline: none;
+  transition: 0.3s ease;
+  width: 100px;
+  text-align: center;
+  background-color: #4caf5045;
+  color: #dddbe3;
+}
+
 .value-display {
     min-width: 60px;
     text-align: center;
@@ -199,6 +257,14 @@ h1 {
     box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
 }
 
+.index-item .index{
+    background: rgba(171, 234, 134, 0.75);
+    padding: 5px 10px;
+    border-radius: 50%;
+    color: #2f2e2e;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
 .config-list {
     max-height: 400px;
     overflow-y: auto;
@@ -206,6 +272,7 @@ h1 {
 }
 
 .config-item {
+    width: 65%;
     background: rgba(255, 255, 255, 0.05);
     margin: 5px 0;
     padding: 10px;
@@ -238,5 +305,14 @@ h1 {
     
     .button-group {
         flex-direction: column;
+    }
+
+    .timer {
+        width: 95%;
+        padding: 20px 5px;
+    }
+
+    .timer label {
+        padding-left: 15px;
     }
 }
