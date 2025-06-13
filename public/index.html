@@ -10,7 +10,21 @@
 </head>
 <body>
     <div class="container">
-        <h1>Coco Pose Builder <img src="assets/icons/robot.png" alt="Robot Icon" class="icon"/></h1>        
+        <div class="site-header">
+            <h1>Coco Pose Builder <img src="assets/icons/robot.png" alt="Robot Icon" class="icon"/></h1>  
+        
+            <div class="button-group-header">
+                <button class="btn-header" onclick="importPoses()">
+                    Import
+                </button>
+                <button class="btn-header" onclick="exportPoses()">
+                    Export
+                </button>
+                <div id="status" class="status disconnected">
+                    Disconnected
+                </div>
+            </div>
+        </div>
 
         <div class="button-group">
             <button class="btn primary" id="moveButton" onclick="moveRobotToCurrent()">
@@ -25,15 +39,6 @@
             <button class="btn secondary" onclick="reseatJoints()">
                 Reset Joints
             </button>
-            <button class="btn" onclick="importPoses()">
-                Import
-            </button>
-            <button class="btn secondary" onclick="exportPoses()">
-                Export
-            </button>
-            <div id="status" class="status disconnected">
-                Disconnected
-            </div>
         </div>
 
         <div id="sliders" class="controls">
