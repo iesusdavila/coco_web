@@ -78,8 +78,9 @@ function moveRobotToCurrent() {
     }
     
     const positions = getCurrentSliderPositions();
-    const duration = 2.0; // Tiempo fijo de 2 segundos para movimientos individuales
+    const duration = parseFloat(document.getElementById('timerInput').value); // Tiempo fijo de 2 segundos para movimientos individuales
     
+    console.log('Moving robot with duration:', duration, 'seconds');
     socket.emit('move_to_position', { positions, duration });
 }
 
@@ -160,7 +161,7 @@ socket.on('movement_completed', (data) => {
     
     if (data.success) {
         console.log('Movimiento completado exitosamente');
-        // Actualizar sliders con la posición final
+        // CONSEJO: MIRA SI PUEDES BORRAR ESTO DE LOS SLIDERS PORQUE YA LO HACE EL FEEDBACK DEL ACTION
         data.positions.forEach((position, index) => {
             const joint = jointNames[index];
             if (sliders[joint]) {

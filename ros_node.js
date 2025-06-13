@@ -63,7 +63,7 @@ class JointTrajectoryController {
         if (this.isMoving) {
             console.log('Robot is already moving, canceling previous goal...');
             if (this.currentGoalHandle) {
-                this.currentGoalHandle.cancel();
+                this.currentGoalHandle.cancelGoal();
             }
         }
 
@@ -96,19 +96,17 @@ class JointTrajectoryController {
             // point.effort = [];
             
             // Configurar tiempo - usar segundos y nanosegundos
-            const seconds = Math.floor(duration);
-            const nanoseconds = Math.floor((duration - seconds) * 1e9);
-            point.time_from_start = new rclnodejs.Time(duration);
+            // const seconds = Math.floor(duration);
+            // const nanoseconds = Math.floor((duration - seconds) * 1e9);
+            point.time_from_start = new rclnodejs.Time(duration).toMsg();
             
             trajectory.points = [point];
             goal.trajectory = trajectory;
             
             // Debug: imprimir información del goal
             console.log('=== GOAL DEBUG INFO ===');
-            console.log('Joint names:', trajectory.joint_names);
             console.log('Positions:', point.positions);
-            console.log('Duration:', duration, 'seconds');
-            console.log('Time from start:', point.time_from_start);
+            // console.log('Duration:', point.time_from_start, 'seconds');
             console.log('Number of joints:', trajectory.joint_names.length);
             console.log('Number of positions:', point.positions.length);
             console.log('=======================');
@@ -125,11 +123,16 @@ class JointTrajectoryController {
                 // Callback de feedback
                 (feedback) => {
                     if (feedback.actual && feedback.actual.positions && feedback.actual.positions.length > 0) {
-                        console.log('Feedback received:', feedback.actual.positions.map(p => p.toFixed(3)));
+                        // console.log('Feedback received:', feedback.actual.positions.map(p => p.toFixed(3)));
                         this.jointPositions = [...feedback.actual.positions];
                         this.io.emit('joint_positions_update', this.jointPositions);
                     }
                 }
+            );
+
+            this.currentGoalHandle.getResult((result) => {
+                console.log('Goal result received:', result);
+            }
             );
             
             // Configurar callback de cancelación
@@ -159,12 +162,6 @@ class JointTrajectoryController {
                 this.isMoving = false;
                 console.log('Movement aborted with result:', result);
                 this.io.emit('movement_error', { error: 'Movement was aborted' });
-            });
-            
-            this.currentGoalHandle.isAborted((result) => {
-                this.isMoving = false;
-                console.log('Movement aborted with result:', result);
-                this.io.emit('movement_error', { error: 'Movement was rejected' });
             });
             
             return this.currentGoalHandle;
@@ -298,7 +295,7 @@ class JointTrajectoryController {
     async stopMovement() {
         if (this.currentGoalHandle && this.isMoving) {
             try {
-                this.currentGoalHandle.cancel();
+                this.currentGoalHandle.cancelGoal();
                 this.isMoving = false;
                 console.log('Movement stopped');
                 this.io.emit('movement_stopped');
@@ -331,7 +328,7 @@ class JointTrajectoryController {
             
             // Mover a una posición específica
             socket.on('move_to_position', async (data) => {
-                const { positions, duration = 2.0 } = data;
+                const { positions, duration } = data;
                 try {
                     await this.moveToPosition(positions, duration);
                 } catch (error) {
@@ -354,16 +351,6 @@ class JointTrajectoryController {
                 const { jointIndex, position } = data;
                 this.updateJointPosition(jointIndex, position);
                 socket.broadcast.emit('joint_updated', { jointIndex, position });
-            });
-            
-            // Mover el robot a las posiciones actuales de los sliders
-            socket.on('move_robot', async (data) => {
-                const { duration = 2.0 } = data;
-                try {
-                    await this.moveToPosition(this.jointPositions, duration);
-                } catch (error) {
-                    socket.emit('movement_error', { error: error.message });
-                }
             });
             
             // Detener movimiento
