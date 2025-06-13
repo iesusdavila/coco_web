@@ -1,7 +1,5 @@
-// Configuración del socket
 const socket = io();
 
-// Variables globales
 const jointNames = Array.from({ length: 12 }, (_, i) => `joint_${i + 1}`);
 const sliders = {};
 const poses = [];
@@ -22,12 +20,10 @@ const jointsLimits = {
     joint_12: [0.15, 1.50]
 };
 
-// Elementos DOM
 const statusElement = document.getElementById('status');
 const slidersDiv = document.getElementById('sliders');
 const configListDiv = document.getElementById('configList');
 
-// Crear sliders dinámicamente
 function createSliders() {
     jointNames.forEach((joint, index) => {
         const container = document.createElement('div');
@@ -54,7 +50,6 @@ function createSliders() {
             const value = parseFloat(slider.value);
             valueDisplay.textContent = value.toFixed(2);
             
-            // Solo actualizar el valor local, no mover el robot automáticamente
             socket.emit('update_joint', {
                 jointIndex: index,
                 position: value
@@ -65,12 +60,10 @@ function createSliders() {
     });
 }
 
-// Función para obtener posiciones actuales de los sliders
 function getCurrentSliderPositions() {
     return jointNames.map(joint => parseFloat(sliders[joint].value));
 }
 
-// Función para mover el robot a las posiciones actuales
 function moveRobotToCurrent() {
     if (isRobotMoving) {
         alert('El robot ya se está moviendo. Espera a que termine o detén el movimiento.');
@@ -78,18 +71,15 @@ function moveRobotToCurrent() {
     }
     
     const positions = getCurrentSliderPositions();
-    const duration = parseFloat(document.getElementById('timerInput').value); // Tiempo fijo de 2 segundos para movimientos individuales
-    
-    console.log('Moving robot with duration:', duration, 'seconds');
+    const duration = parseFloat(document.getElementById('timerInput').value); 
+
     socket.emit('move_to_position', { positions, duration });
 }
 
-// Función para detener el movimiento del robot
-function stopRobot() {
+function stopEmergencyRobot() {
     socket.emit('stop_movement');
 }
 
-// Función para ejecutar todas las poses guardadas como trayectoria
 function executeAllPoses() {
     if (poses.length === 0) {
         alert('No hay poses guardadas para ejecutar.');
@@ -106,7 +96,6 @@ function executeAllPoses() {
     }
 }
 
-// Eventos de socket
 socket.on('connect', () => {
     console.log('Connected to server');
     statusElement.textContent = 'Connected';
@@ -159,17 +148,7 @@ socket.on('movement_completed', (data) => {
     isRobotMoving = false;
     updateMovementUI();
     
-    if (data.success) {
-        console.log('Movimiento completado exitosamente');
-        // CONSEJO: MIRA SI PUEDES BORRAR ESTO DE LOS SLIDERS PORQUE YA LO HACE EL FEEDBACK DEL ACTION
-        data.positions.forEach((position, index) => {
-            const joint = jointNames[index];
-            if (sliders[joint]) {
-                sliders[joint].value = position;
-                document.getElementById(`${joint}_val`).textContent = position.toFixed(2);
-            }
-        });
-    } else {
+    if (!data.success) {
         alert('El movimiento falló. Revisa la consola para más detalles.');
     }
 });
@@ -179,7 +158,6 @@ socket.on('trajectory_completed', (data) => {
     updateMovementUI();
     
     if (data.success) {
-        console.log('Trayectoria completada exitosamente');
         alert('¡Secuencia de poses ejecutada exitosamente!');
     } else {
         alert('La ejecución de la trayectoria falló. Revisa la consola para más detalles.');
@@ -203,7 +181,6 @@ socket.on('trajectory_error', (data) => {
 socket.on('movement_stopped', () => {
     isRobotMoving = false;
     updateMovementUI();
-    console.log('Movimiento detenido');
 });
 
 socket.on('configuration_saved', (data) => {
@@ -211,7 +188,6 @@ socket.on('configuration_saved', (data) => {
     updateConfigList();
 });
 
-// Función para actualizar la UI según el estado del movimiento
 function updateMovementUI() {
     const moveButton = document.getElementById('moveButton');
     const stopButton = document.getElementById('stopButton');
@@ -222,15 +198,10 @@ function updateMovementUI() {
         moveButton.textContent = isRobotMoving ? 'Moving...' : 'Move Robot';
     }
     
-    if (stopButton) {
-        stopButton.disabled = !isRobotMoving;
-    }
-    
     if (executeButton) {
         executeButton.disabled = isRobotMoving || poses.length === 0;
     }
     
-    // Actualizar status
     if (isRobotMoving) {
         statusElement.textContent = 'Moving...';
         statusElement.className = 'status moving';
@@ -240,7 +211,6 @@ function updateMovementUI() {
     }
 }
 
-// Funciones de control
 function importPoses() {
     const input = document.createElement('input');
     input.type = 'file';
@@ -367,9 +337,7 @@ function updateConfigList() {
     updateMovementUI();
 }
 
-// Inicializar la aplicación
 document.addEventListener('DOMContentLoaded', () => {
     createSliders();
     updateMovementUI();
-    console.log('Init application with trajectory control');
 });

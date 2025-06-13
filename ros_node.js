@@ -37,14 +37,12 @@ class JointTrajectoryController {
             
             this.node = rclnodejs.createNode('joint_trajectory_web_controller');
             
-            // Crear cliente de acción para el controlador de trayectoria
             this.actionClient = new rclnodejs.ActionClient(
                 this.node,
                 'control_msgs/action/FollowJointTrajectory',
                 '/joint_trajectory_controller/follow_joint_trajectory'
             );
             
-            // Esperar a que el servidor de acción esté disponible
             console.log('Waiting for action server...');
             await this.actionClient.waitForServer(5000);
             console.log('Action server available!');
@@ -70,97 +68,57 @@ class JointTrajectoryController {
         try {
             this.isMoving = true;
             
-            // Crear el mensaje de trayectoria
             const FollowJointTrajectory = rclnodejs.require('control_msgs').action.FollowJointTrajectory;
             const JointTrajectory = rclnodejs.require('trajectory_msgs').msg.JointTrajectory;
             const JointTrajectoryPoint = rclnodejs.require('trajectory_msgs').msg.JointTrajectoryPoint;
-            const Header = rclnodejs.require('std_msgs').msg.Header;
             
             const goal = new FollowJointTrajectory.Goal();
             
-            // Crear la trayectoria
             const trajectory = new JointTrajectory();
             trajectory.joint_names = [...this.jointNames];
             
-            // Crear header
-            // const header = new Header();
-            // header.stamp = this.node.now().toMsg();
-            // header.frame_id = '';
-            // trajectory.header = header;
-            
-            // Crear punto de trayectoria
             const point = new JointTrajectoryPoint();
             point.positions = [...positions];
-            // point.velocities = [];
-            // point.accelerations = [];
-            // point.effort = [];
-            
-            // Configurar tiempo - usar segundos y nanosegundos
-            // const seconds = Math.floor(duration);
-            // const nanoseconds = Math.floor((duration - seconds) * 1e9);
+
             point.time_from_start = new rclnodejs.Time(duration).toMsg();
             
             trajectory.points = [point];
             goal.trajectory = trajectory;
             
-            // Debug: imprimir información del goal
-            console.log('=== GOAL DEBUG INFO ===');
-            console.log('Positions:', point.positions);
-            // console.log('Duration:', point.time_from_start, 'seconds');
-            console.log('Number of joints:', trajectory.joint_names.length);
-            console.log('Number of positions:', point.positions.length);
-            console.log('=======================');
-            
-            // Verificar que tenemos el número correcto de posiciones
             if (point.positions.length !== trajectory.joint_names.length) {
                 throw new Error(`Position count (${point.positions.length}) doesn't match joint count (${trajectory.joint_names.length})`);
             }
-            
-            console.log(`Moving robot to positions: [${positions.map(p => p.toFixed(3)).join(', ')}] in ${duration}s`);
-            
-            // Enviar goal con tu implementación de callbacks
+                        
             this.currentGoalHandle = await this.actionClient.sendGoal(goal, 
-                // Callback de feedback
                 (feedback) => {
                     if (feedback.actual && feedback.actual.positions && feedback.actual.positions.length > 0) {
-                        // console.log('Feedback received:', feedback.actual.positions.map(p => p.toFixed(3)));
                         this.jointPositions = [...feedback.actual.positions];
                         this.io.emit('joint_positions_update', this.jointPositions);
                     }
                 }
             );
-
-            this.currentGoalHandle.getResult((result) => {
-                console.log('Goal result received:', result);
-            }
-            );
             
-            // Configurar callback de cancelación
+            // Configuration of cancel callback
             this.currentGoalHandle.isCanceled(() => {
                 this.isMoving = false;
-                console.log('Movement canceled by user');
                 this.io.emit('movement_stopped');
             });
             
-            // Configurar callback de éxito
+            // Configuration of success callback
             this.currentGoalHandle.isSucceeded((result) => {
                 this.isMoving = false;
-                console.log('Movement completed with result:', result);
                 
-                // Actualizar posiciones locales
                 this.jointPositions = [...positions];
                 
-                // Notificar a los clientes web
                 this.io.emit('movement_completed', {
                     positions: this.jointPositions,
                     success: true
                 });
             });
             
-            // Configurar callback de fallo
+            // Configuration of abort callback
             this.currentGoalHandle.isAborted((result) => {
                 this.isMoving = false;
-                console.log('Movement aborted with result:', result);
                 this.io.emit('movement_error', { error: 'Movement was aborted' });
             });
             
@@ -189,11 +147,9 @@ class JointTrajectoryController {
             
             const goal = new FollowJointTrajectory.Goal();
             
-            // Crear la trayectoria
             const trajectory = new JointTrajectory();
             trajectory.joint_names = [...this.jointNames];
             
-            // Crear header
             const header = new Header();
             header.stamp = this.node.now().toMsg();
             header.frame_id = '';
@@ -204,7 +160,6 @@ class JointTrajectoryController {
             trajectory.points = trajectoryPoints.map((trajPoint, index) => {
                 const point = new JointTrajectoryPoint();
                 
-                // trajPoint debería ser [pos1, pos2, ..., pos12, duration]
                 const positions = trajPoint.slice(0, -1);
                 const duration = trajPoint[trajPoint.length - 1];
                 
@@ -215,7 +170,6 @@ class JointTrajectoryController {
                 point.accelerations = [];
                 point.effort = [];
                 
-                // Configurar tiempo - usar segundos y nanosegundos
                 const seconds = Math.floor(cumulativeTime);
                 const nanoseconds = Math.floor((cumulativeTime - seconds) * 1e9);
                 point.time_from_start = {
@@ -227,23 +181,10 @@ class JointTrajectoryController {
             });
             
             goal.trajectory = trajectory;
-            
-            console.log(`=== TRAJECTORY SEQUENCE DEBUG ===`);
-            console.log(`Number of points: ${trajectoryPoints.length}`);
-            console.log(`Total duration: ${cumulativeTime.toFixed(2)}s`);
-            console.log(`Joint names: ${trajectory.joint_names}`);
-            trajectory.points.forEach((point, idx) => {
-                console.log(`Point ${idx + 1}: positions=[${point.positions.map(p => p.toFixed(3)).join(', ')}] time=${point.time_from_start.sec}.${Math.floor(point.time_from_start.nanosec / 1e6)}s`);
-            });
-            console.log(`================================`);
-            
-            console.log(`Executing trajectory sequence with ${trajectoryPoints.length} points`);
-            
+                
             this.currentGoalHandle = await this.actionClient.sendGoal(goal,
-                // Callback de feedback
                 (feedback) => {
                     if (feedback.actual && feedback.actual.positions && feedback.actual.positions.length > 0) {
-                        console.log('Trajectory feedback:', feedback.actual.positions.map(p => p.toFixed(3)));
                         this.jointPositions = [...feedback.actual.positions];
                         this.io.emit('joint_positions_update', this.jointPositions);
                     }
@@ -252,15 +193,12 @@ class JointTrajectoryController {
             
             this.currentGoalHandle.isCanceled(() => {
                 this.isMoving = false;
-                console.log('Trajectory canceled by user');
                 this.io.emit('movement_stopped');
             });
             
             this.currentGoalHandle.isSucceeded((result) => {
                 this.isMoving = false;
-                console.log('Trajectory sequence completed successfully');
                 
-                // Actualizar a la última posición
                 const lastPoint = trajectoryPoints[trajectoryPoints.length - 1];
                 this.jointPositions = lastPoint.slice(0, -1);
                 
@@ -272,13 +210,11 @@ class JointTrajectoryController {
             
             this.currentGoalHandle.isAborted((result) => {
                 this.isMoving = false;
-                console.log('Trajectory aborted:', result);
                 this.io.emit('trajectory_error', { error: 'Trajectory was aborted' });
             });
             
             this.currentGoalHandle.isRejected((result) => {
                 this.isMoving = false;
-                console.log('Trajectory rejected:', result);
                 this.io.emit('trajectory_error', { error: 'Trajectory was rejected' });
             });
             
@@ -293,11 +229,10 @@ class JointTrajectoryController {
     }
 
     async stopMovement() {
-        if (this.currentGoalHandle && this.isMoving) {
+        if (this.isMoving) {
             try {
                 this.currentGoalHandle.cancelGoal();
                 this.isMoving = false;
-                console.log('Movement stopped');
                 this.io.emit('movement_stopped');
             } catch (error) {
                 console.error('Error stopping movement:', error);
@@ -326,7 +261,6 @@ class JointTrajectoryController {
             socket.emit('joint_positions', this.jointPositions);
             socket.emit('robot_status', { isMoving: this.isMoving });
             
-            // Mover a una posición específica
             socket.on('move_to_position', async (data) => {
                 const { positions, duration } = data;
                 try {
@@ -336,7 +270,6 @@ class JointTrajectoryController {
                 }
             });
             
-            // Ejecutar secuencia de trayectoria
             socket.on('execute_trajectory', async (data) => {
                 const { trajectoryPoints } = data;
                 try {
@@ -346,19 +279,16 @@ class JointTrajectoryController {
                 }
             });
             
-            // Actualización de joint individual (solo actualiza el valor local, no mueve el robot)
             socket.on('update_joint', (data) => {
                 const { jointIndex, position } = data;
                 this.updateJointPosition(jointIndex, position);
                 socket.broadcast.emit('joint_updated', { jointIndex, position });
             });
             
-            // Detener movimiento
             socket.on('stop_movement', async () => {
                 await this.stopMovement();
             });
             
-            // Guardar configuración
             socket.on('save_configuration', () => {
                 socket.emit('configuration_saved', { positions: [...this.jointPositions] });
             });
