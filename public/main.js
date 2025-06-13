@@ -5,6 +5,8 @@ const socket = io();
 const jointNames = Array.from({ length: 12 }, (_, i) => `joint_${i + 1}`);
 const sliders = {};
 const poses = [];
+let isRobotMoving = false;
+
 const jointsLimits = {
     joint_1: [-0.78, 0.78],
     joint_2: [-0.3, 0.3],
@@ -52,7 +54,7 @@ function createSliders() {
             const value = parseFloat(slider.value);
             valueDisplay.textContent = value.toFixed(2);
             
-            // Enviar actualización al servidor
+            // Solo actualizar el valor local, no mover el robot automáticamente
             socket.emit('update_joint', {
                 jointIndex: index,
                 position: value
@@ -61,6 +63,46 @@ function createSliders() {
 
         sliders[joint] = slider;
     });
+}
+
+// Función para obtener posiciones actuales de los sliders
+function getCurrentSliderPositions() {
+    return jointNames.map(joint => parseFloat(sliders[joint].value));
+}
+
+// Función para mover el robot a las posiciones actuales
+function moveRobotToCurrent() {
+    if (isRobotMoving) {
+        alert('El robot ya se está moviendo. Espera a que termine o detén el movimiento.');
+        return;
+    }
+    
+    const positions = getCurrentSliderPositions();
+    const duration = 2.0; // Tiempo fijo de 2 segundos para movimientos individuales
+    
+    socket.emit('move_to_position', { positions, duration });
+}
+
+// Función para detener el movimiento del robot
+function stopRobot() {
+    socket.emit('stop_movement');
+}
+
+// Función para ejecutar todas las poses guardadas como trayectoria
+function executeAllPoses() {
+    if (poses.length === 0) {
+        alert('No hay poses guardadas para ejecutar.');
+        return;
+    }
+    
+    if (isRobotMoving) {
+        alert('El robot ya se está moviendo. Espera a que termine o detén el movimiento.');
+        return;
+    }
+    
+    if (confirm(`¿Ejecutar secuencia de ${poses.length} poses?`)) {
+        socket.emit('execute_trajectory', { trajectoryPoints: poses });
+    }
 }
 
 // Eventos de socket
@@ -74,9 +116,26 @@ socket.on('disconnect', () => {
     console.log('Disconnected from server');
     statusElement.textContent = 'Disconnected';
     statusElement.className = 'status disconnected';
+    isRobotMoving = false;
+    updateMovementUI();
+});
+
+socket.on('robot_status', (data) => {
+    isRobotMoving = data.isMoving;
+    updateMovementUI();
 });
 
 socket.on('joint_positions', (positions) => {
+    positions.forEach((position, index) => {
+        const joint = jointNames[index];
+        if (sliders[joint]) {
+            sliders[joint].value = position;
+            document.getElementById(`${joint}_val`).textContent = position.toFixed(2);
+        }
+    });
+});
+
+socket.on('joint_positions_update', (positions) => {
     positions.forEach((position, index) => {
         const joint = jointNames[index];
         if (sliders[joint]) {
@@ -95,10 +154,90 @@ socket.on('joint_updated', (data) => {
     }
 });
 
+socket.on('movement_completed', (data) => {
+    isRobotMoving = false;
+    updateMovementUI();
+    
+    if (data.success) {
+        console.log('Movimiento completado exitosamente');
+        // Actualizar sliders con la posición final
+        data.positions.forEach((position, index) => {
+            const joint = jointNames[index];
+            if (sliders[joint]) {
+                sliders[joint].value = position;
+                document.getElementById(`${joint}_val`).textContent = position.toFixed(2);
+            }
+        });
+    } else {
+        alert('El movimiento falló. Revisa la consola para más detalles.');
+    }
+});
+
+socket.on('trajectory_completed', (data) => {
+    isRobotMoving = false;
+    updateMovementUI();
+    
+    if (data.success) {
+        console.log('Trayectoria completada exitosamente');
+        alert('¡Secuencia de poses ejecutada exitosamente!');
+    } else {
+        alert('La ejecución de la trayectoria falló. Revisa la consola para más detalles.');
+    }
+});
+
+socket.on('movement_error', (data) => {
+    isRobotMoving = false;
+    updateMovementUI();
+    alert(`Error en el movimiento: ${data.error}`);
+    console.error('Movement error:', data.error);
+});
+
+socket.on('trajectory_error', (data) => {
+    isRobotMoving = false;
+    updateMovementUI();
+    alert(`Error en la trayectoria: ${data.error}`);
+    console.error('Trajectory error:', data.error);
+});
+
+socket.on('movement_stopped', () => {
+    isRobotMoving = false;
+    updateMovementUI();
+    console.log('Movimiento detenido');
+});
+
 socket.on('configuration_saved', (data) => {
     poses.push([...data.positions, parseFloat(document.getElementById('timerInput').value)]);
     updateConfigList();
 });
+
+// Función para actualizar la UI según el estado del movimiento
+function updateMovementUI() {
+    const moveButton = document.getElementById('moveButton');
+    const stopButton = document.getElementById('stopButton');
+    const executeButton = document.getElementById('executeButton');
+    
+    if (moveButton) {
+        moveButton.disabled = isRobotMoving;
+        moveButton.textContent = isRobotMoving ? 'Moving...' : 'Move Robot';
+    }
+    
+    if (stopButton) {
+        stopButton.disabled = !isRobotMoving;
+    }
+    
+    if (executeButton) {
+        executeButton.disabled = isRobotMoving || poses.length === 0;
+    }
+    
+    // Actualizar status
+    if (isRobotMoving) {
+        statusElement.textContent = 'Moving...';
+        statusElement.className = 'status moving';
+    } else if (statusElement.className.includes('connected')) {
+        statusElement.textContent = 'Connected';
+        statusElement.className = 'status connected';
+    }
+}
 
 // Funciones de control
 function importPoses() {
@@ -205,6 +344,7 @@ function deleteItem(index) {
 function updateConfigList() {
     if (poses.length === 0) {
         configListDiv.innerHTML = '<div class="config-item">There are no saved poses.</div>';
+        updateMovementUI();
         return;
     }
     
@@ -219,13 +359,16 @@ function updateConfigList() {
             <span class="timer-value">${config[config.length - 1].toFixed(1)} s</span>
             <img class="move" src="assets/icons/arrow-up.png" alt="Move Up" onclick="moveItem(${index}, -1)"/>
             <img class="move" src="assets/icons/arrow-down.png" alt="Move Down" onclick="moveItem(${index}, 1)"/>
-            <img class="delete" src="assets/icons/trash.png" alt="Move Down" onclick="deleteItem(${index})"/>
+            <img class="delete" src="assets/icons/trash.png" alt="Delete" onclick="deleteItem(${index})"/>
         </div>`
     ).join('');
+    
+    updateMovementUI();
 }
 
 // Inicializar la aplicación
 document.addEventListener('DOMContentLoaded', () => {
     createSliders();
-    console.log('Init application');
+    updateMovementUI();
+    console.log('Init application with trajectory control');
 });
