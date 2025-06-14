@@ -332,6 +332,7 @@ function editPose(index) {
         }
     });
     document.getElementById('timerInput').value = config[config.length - 1].toFixed(1);
+    document.getElementById('savePoseButton').disabled = true;
     
     const cancelBtn = document.getElementById('cancelButton');
     cancelBtn.style.display = 'Block';
@@ -370,7 +371,8 @@ function saveEditedPose(index) {
     hiddenEditBtns();
 }
 
-function hiddenEditBtns(index) {
+function hiddenEditBtns() {
+    document.getElementById('savePoseButton').disabled = false;
     const saveBtn = document.getElementById('saveButton');
     saveBtn.style.display = 'none';
     const cancelBtn = document.getElementById('cancelButton');
