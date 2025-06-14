@@ -312,6 +312,77 @@ function deleteItem(index) {
     updateConfigList();
 }
 
+function editPose(index) {
+    if (index < 0 || index >= poses.length) {
+        console.error('Index out of range:', index);
+        return;
+    }
+    const config = poses[index];
+    jointNames.forEach((joint, i) => {
+        sliders[joint].value = config[i];
+        document.getElementById(`${joint}_val`).textContent = config[i].toFixed(2);
+        const configItem = document.getElementById(`configItem${i}`);
+        if (configItem) {
+            const iconEditImg = configItem.querySelector('.edit');
+            if (iconEditImg) {
+                iconEditImg.style.opacity = '0.4';
+                iconEditImg.style.pointerEvents = 'none';
+                iconEditImg.style.cursor = 'not-allowed';
+            }
+        }
+    });
+    document.getElementById('timerInput').value = config[config.length - 1].toFixed(1);
+    
+    const cancelBtn = document.getElementById('cancelButton');
+    cancelBtn.style.display = 'Block';
+    cancelBtn.onclick = () => {
+        cancelEditPose(index);
+    }
+
+    const saveBtn = document.getElementById('saveButton');
+    saveBtn.style.display = 'Block';
+    saveBtn.onclick = () => {
+        saveEditedPose(index);
+    }
+}
+
+function cancelEditPose(index) {
+    if (index < 0 || index >= poses.length) {
+        console.error('Index out of range:', index);
+        return;
+    }
+    reseatJoints();
+
+    document.getElementById('timerInput').value = 2.0;
+    hiddenEditBtns();
+}
+
+function saveEditedPose(index) {
+    const timerValue = parseFloat(document.getElementById('timerInput').value);
+    if (isNaN(timerValue) || timerValue <= 0 || timerValue > 60) {
+        alert('Please enter a valid timer value greater than 0 and less than or equal to 60 seconds.');
+        return;
+    }
+    const updatedConfig = getCurrentSliderPositions();
+    updatedConfig.push(timerValue);
+    poses[index] = updatedConfig;
+    updateConfigList();
+    hiddenEditBtns();
+}
+
+function hiddenEditBtns(index) {
+    const saveBtn = document.getElementById('saveButton');
+    saveBtn.style.display = 'none';
+    const cancelBtn = document.getElementById('cancelButton');
+    cancelBtn.style.display = 'none';
+    const editIcons = document.querySelectorAll('.edit');
+    editIcons.forEach(icon => {
+        icon.style.opacity = '1';
+        icon.style.pointerEvents = 'auto';
+        icon.style.cursor = 'pointer';
+    });
+}
+
 function updateConfigList() {
     if (poses.length === 0) {
         configListDiv.innerHTML = '<div class="config-item">There are no saved poses.</div>';
@@ -320,7 +391,7 @@ function updateConfigList() {
     }
     
     configListDiv.innerHTML = poses.map((config, index) => 
-        `<div class="config-item-container">
+        `<div class="config-item-container" id="configItem${index}">
             <div>
                 <img class="move" src="assets/icons/arrow-up.png" alt="Move Up" onclick="moveItem(${index}, -1)"/>            
                 <div class="index-item">
@@ -334,8 +405,8 @@ function updateConfigList() {
             <span class="timer-value">${config[config.length - 1].toFixed(1)} s</span>
             <img class="play" src="assets/icons/play.png" alt="Play" onclick="socket.emit('execute_single_pose', { pose: config })"/>
             <!-- <img class="pause" src="assets/icons/pause.png" alt="Pause" onclick="socket.emit('pause_movement')"/> -->
-            <img class="save-fav" src="assets/icons/save.png" alt="Save" onclick="socket.emit('save_configuration', { positions: config.slice(0, -1) })"/>            
-            <img class="edit" src="assets/icons/edit.png" alt="Edit" onclick="savePose(${index})"/>
+            <img class="save-fav" src="assets/icons/save.png" alt="Save" onclick="saveFavPose(${index})"/>  
+            <img class="edit" src="assets/icons/edit.png" alt="Edit" onclick="editPose(${index})"/>
             <img class="delete" src="assets/icons/trash.png" alt="Delete" onclick="deleteItem(${index})"/>
         </div>`
     ).join('');
