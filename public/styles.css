@@ -334,8 +334,16 @@ h1 {
     width: 98%;
 }
 
-.move, .delete{
+.delete{
     cursor: pointer;
+}
+
+.move {
+    cursor: pointer;
+    width: 25px;
+    margin: 0 auto;
+    display: flex;
+    margin: 2px auto;
 }
 
 @media (max-width: 768px) {

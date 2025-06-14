@@ -321,15 +321,21 @@ function updateConfigList() {
     
     configListDiv.innerHTML = poses.map((config, index) => 
         `<div class="config-item-container">
-            <div class="index-item">
-                <span class="index">${index + 1}</span>
+            <div>
+                <img class="move" src="assets/icons/arrow-up.png" alt="Move Up" onclick="moveItem(${index}, -1)"/>            
+                <div class="index-item">
+                    <span class="index">${index + 1}</span>
+                </div>
+                <img class="move" src="assets/icons/arrow-down.png" alt="Move Down" onclick="moveItem(${index}, 1)"/>
             </div>
             <div class="config-item">
                 ${config.slice(0, -1).map((val, i) => `<span class="joint-value">${jointNames[i].replace('_', ' ')}: ${val.toFixed(2)}</span>`).join(', ')}
             </div>
             <span class="timer-value">${config[config.length - 1].toFixed(1)} s</span>
-            <img class="move" src="assets/icons/arrow-up.png" alt="Move Up" onclick="moveItem(${index}, -1)"/>
-            <img class="move" src="assets/icons/arrow-down.png" alt="Move Down" onclick="moveItem(${index}, 1)"/>
+            <img class="play" src="assets/icons/play.png" alt="Play" onclick="socket.emit('execute_single_pose', { pose: config })"/>
+            <!-- <img class="pause" src="assets/icons/pause.png" alt="Pause" onclick="socket.emit('pause_movement')"/> -->
+            <img class="save-fav" src="assets/icons/save.png" alt="Save" onclick="socket.emit('save_configuration', { positions: config.slice(0, -1) })"/>            
+            <img class="edit" src="assets/icons/edit.png" alt="Edit" onclick="savePose(${index})"/>
             <img class="delete" src="assets/icons/trash.png" alt="Delete" onclick="deleteItem(${index})"/>
         </div>`
     ).join('');
