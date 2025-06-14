@@ -4,6 +4,7 @@ const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 
 class JointTrajectoryController {
     constructor() {
@@ -291,6 +292,29 @@ class JointTrajectoryController {
             
             socket.on('save_configuration', () => {
                 socket.emit('configuration_saved', { positions: [...this.jointPositions] });
+            });
+
+            socket.on('save_configuration_from_fav', (data) => {
+                const { name, values } = data;
+                socket.emit('configuration_saved_from_fav', { positions: [...values] });
+            });
+            
+            socket.on('save_favorite_pose', (data) => {
+                const { name, values } = data;
+                if (!name || !Array.isArray(values) || values.length !== 13) {
+                    socket.emit('favorite_pose_error', { error: 'Invalid data for favorite pose.' });
+                    return;
+                }
+                const line = `${name}: ${values.map(v => v.toFixed(3)).join(', ')} \n`;
+                const filePath = path.join(__dirname, 'public', 'assets', 'files', 'favorite_poses.txt');
+                fs.appendFile(filePath, line, (err) => {
+                    if (err) {
+                        console.error('Error saving favorite pose:', err);
+                        socket.emit('favorite_pose_error', { error: 'Failed to save favorite pose.' });
+                    } else {
+                        socket.emit('favorite_pose_saved', { name, values });
+                    }
+                });
             });
             
             socket.on('disconnect', () => {

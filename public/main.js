@@ -3,6 +3,7 @@ const socket = io();
 const jointNames = Array.from({ length: 12 }, (_, i) => `joint_${i + 1}`);
 const sliders = {};
 const poses = [];
+const fav_poses = [];
 let isRobotMoving = false;
 
 const jointsLimits = {
@@ -57,6 +58,41 @@ function createSliders() {
         });
 
         sliders[joint] = slider;
+    });
+}
+
+function initialListFavPoses() {
+    fetch('assets/files/favorite_poses.txt')
+        .then(response => response.text())
+        .then(data => {
+            const lines = data.split('\n').filter(line => line.trim() !== '');
+            lines.forEach(line => {
+                const [name, ...values] = line.split(':').map(val => val.trim());
+                fav_poses.push({ name, values: values });
+            });
+            updateFavPosesList();
+        })
+        .catch(error => console.error('Error loading favorite poses:', error));
+}
+
+function updateFavPosesList() {
+    const favPosesList = document.querySelector('.fav-poses-list');
+    if (!favPosesList) return;
+
+    favPosesList.innerHTML = fav_poses.map((pose, index) => 
+        `<div class="fav-pose-item">
+            <span>${pose.name}</span>
+            <button onclick="addToListPoses(${index})">Add to List</button>
+        </div>`
+    ).join('');
+}
+
+function addToListPoses(index) {    
+    const pose = fav_poses[index];
+    
+    socket.emit('save_configuration_from_fav', {
+        name: pose.name,
+        values: pose.values[0].split(',').map(s => parseFloat(s.trim()))
     });
 }
 
@@ -186,6 +222,19 @@ socket.on('movement_stopped', () => {
 socket.on('configuration_saved', (data) => {
     poses.push([...data.positions, parseFloat(document.getElementById('timerInput').value)]);
     updateConfigList();
+});
+
+socket.on('configuration_saved_from_fav', (data) => {
+    poses.push([...data.positions]);
+    updateConfigList();
+});
+
+socket.on('favorite_pose_saved', (data) => {
+    alert(`Favorite pose '${data.name}' saved successfully!`);
+});
+
+socket.on('favorite_pose_error', (data) => {
+    alert(`Error saving favorite pose: ${data.error}`);
 });
 
 function updateMovementUI() {
@@ -385,6 +434,25 @@ function hiddenEditBtns() {
     });
 }
 
+function saveFavPose(index) {
+    if (index < 0 || index >= poses.length) {
+        console.error('Index out of range:', index);
+        return;
+    }
+    const pose = poses[index];
+    const poseName = prompt('Enter a name for the favorite pose:');
+    if (!poseName || poseName.trim() === '') {
+        alert('Pose name cannot be empty.');
+        return;
+    }
+    socket.emit('save_favorite_pose', {
+        name: poseName.trim(),
+        values: pose
+    });
+    fav_poses.push([...pose]);
+    // updateConfigList();
+}
+
 function updateConfigList() {
     if (poses.length === 0) {
         configListDiv.innerHTML = '<div class="config-item">There are no saved poses.</div>';
@@ -417,6 +485,7 @@ function updateConfigList() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    initialListFavPoses();
     createSliders();
     updateMovementUI();
 });
