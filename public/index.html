@@ -45,11 +45,21 @@
             <!-- sliders se autogeneran -->
         </div>
 
-        <div class="timer">
-            <label>Execution time for the pose</label>
-            <div class="timer-controls">
-                <input type="number" class="timer-input" min="0" max="60" step="0.5" value="2.0" id="timerInput">
-                <span class="timer-unit">seconds</span>
+        <div class="timer-cancel-save">
+            <div class="timer">
+                <label>Execution time for the pose</label>
+                <div class="timer-controls">
+                    <input type="number" class="timer-input" min="0" max="60" step="0.5" value="2.0" id="timerInput">
+                    <span class="timer-unit">seconds</span>
+                </div>
+            </div>
+            <div class="button-group-save">
+                <button class="btn reset" id="cancelButton">
+                    Cancel
+                </button>
+                <button class="btn save" id="saveButton">
+                    Save
+                </button>
             </div>
         </div>
 
