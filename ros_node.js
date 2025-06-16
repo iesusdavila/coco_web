@@ -316,6 +316,60 @@ class JointTrajectoryController {
                     }
                 });
             });
+
+            socket.on('update_favorite_poses', (data) => {
+                const { new_name, old_name,values } = data;
+                const filePath = path.join(__dirname, 'public', 'assets', 'files', 'favorite_poses.txt');
+                fs.readFile(filePath, 'utf8', (err, content) => {
+                    if (err) {
+                        console.error('Error reading favorite poses file:', err);
+                        socket.emit('favorite_pose_error', { error: 'Failed to read favorite poses.' });
+                        return;
+                    }
+                    const lines = content.split('\n').filter(line => line.trim() !== '');
+                    const updatedLines = lines.map(line => {
+                        console.log(line);
+                        console.log(old_name);
+                        console.log(line.startsWith(old_name + ':'));
+                        console.log(new_name);
+                        console.log(line.startsWith(new_name + ':'));
+                        if (line.startsWith(old_name + ':')) {
+                            return `${new_name}: ${values.map(v => v.toFixed(3)).join(', ')}`;
+                        }
+                        return line;
+                    });
+                    fs.writeFile(filePath, updatedLines.join('\n') + '\n', (err) => {
+                        if (err) {
+                            console.error('Error updating favorite poses:', err);
+                            socket.emit('favorite_pose_error', { error: 'Failed to update favorite poses.' });
+                        } else {
+                            socket.emit('favorite_pose_updated', { new_name, values });
+                        }
+                    });
+                });
+            }
+            );
+
+            socket.on('delete_favorite_pose', (name) => {
+                const filePath = path.join(__dirname, 'public', 'assets', 'files', 'favorite_poses.txt');
+                fs.readFile(filePath, 'utf8', (err, content) => {
+                    if (err) {
+                        console.error('Error reading favorite poses file:', err);
+                        socket.emit('favorite_pose_error', { error: 'Failed to read favorite poses.' });
+                        return;
+                    }
+                    const lines = content.split('\n').filter(line => line.trim() !== '');
+                    const updatedLines = lines.filter(line => !line.startsWith(name + ':'));
+                    fs.writeFile(filePath, updatedLines.join('\n') + '\n', (err) => {
+                        if (err) {
+                            console.error('Error deleting favorite pose:', err);
+                            socket.emit('favorite_pose_error', { error: 'Failed to delete favorite pose.' });
+                        } else {
+                            socket.emit('favorite_pose_deleted', { name });
+                        }
+                    });
+                });
+            });
             
             socket.on('disconnect', () => {
                 console.log('Client disconnected');

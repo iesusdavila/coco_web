@@ -84,21 +84,42 @@ function updateFavPosesList() {
     console.log(fav_poses);
     favPosesList.innerHTML = fav_poses.map((pose, index) => 
         `<div class="fav-pose-item">
-            <img class="right-arrow" id="viewMore${index}" src="assets/icons/right-arrow.png" alt="View More" onclick="viewMore(${index})"/>
-            <img class="left-arrow" id="viewLess${index}" src="assets/icons/left-arrow.png" alt="View Less" onclick="viewLess(${index})"/>
+            <div>
+                <img class="right-arrow" id="viewMore${index}" src="assets/icons/right-arrow.png" alt="View More" onclick="viewMore(${index})"/>
+                <img class="left-arrow" id="viewLess${index}" src="assets/icons/left-arrow.png" alt="View Less" onclick="viewLess(${index})"/>
+            </div>
             <h3>${pose.name}</h3>
-            <img class="add" src="assets/icons/add.png" alt="Add to List" onclick="addToListPoses(${index})"/>
-            <img class="edit-fav-pose" src="assets/icons/edit-2.png" alt="Edit" onclick="editFavPose(${index})"/>
-            <img class="delete-fav-pose" src="assets/icons/remove.png" alt="Delete" onclick="deleteFavPose(${index})"/>
+            <img class="add" id="addConfigFavPose${index}" src="assets/icons/add.png" alt="Add to List" onclick="addToListPoses(${index})"/>
+            <div>
+                <img class="edit-fav-pose" id="editFavPose${index}" src="assets/icons/edit-2.png" alt="Edit" onclick="editFavPose(${index})"/>
+                <img class="cancel-edit-fav-pose" id="cancelFavPose${index}" src="assets/icons/cancel.png" alt="Cancel" onclick="cancelEditFavPose(${index})"/>
+            </div>
+            <div>
+                <img class="delete-fav-pose" id="deleteFavPose${index}" src="assets/icons/trash.png" alt="Delete" onclick="deleteFavPose(${index})"/>
+                <img class="ok-edit-fav-pose" id="okFavPose${index}" src="assets/icons/ok.png" alt="Ok" onclick="okEditFavPose(${index})"/>
+            </div>
         </div>
-        <div class="fav-pose-values" id="favPoseValues${index}">            
+        <div class="fav-pose-values" id="favPoseValues${index}">       
             ${pose.values.map((values, i) => 
                 `<div class="fav-pose-values-item">
                     ${values.slice(0,-1).map((val, i_val) => `<span>Joint${i_val+1}: ${val.toFixed(2)}</span>`).join(', ')}
                     <span>Timer: ${values[values.length - 1].toFixed(1)} s</span>
                 </div>`
             ).join('')}
-        </div>`
+        </div>
+        <div class="edit-fav-pose-values" id="editFavPoseValues${index}">
+            <label for="favPoseName${index}">Name:</label>
+            <input type="text" id="favPoseName${index}" value="${pose.name}">
+            ${pose.values[0].slice(0, -1).map((values, i) => 
+                `<div>
+                    <label for="favJoint${index}_${i}">Joint ${i + 1}:</label>
+                    <input type="number" id="favJoint${index}_${i}" value="${values.toFixed(2)}" step="0.01">
+                </div>`
+            ).join('')}
+            <label for="favTimer${index}">Timer (s):</label>
+            <input type="number" id="favTimer${index}" value="${pose.values[0][pose.values[0].length - 1].toFixed(1)}" step="0.1" min="0.1" max="60">
+        </div>
+    `
     ).join('');
 }
 
@@ -121,6 +142,67 @@ function addToListPoses(index) {
         name: pose.name,
         values: pose.values
     });
+}
+
+function editFavPose(index) {
+    document.getElementById(`editFavPose${index}`).style.display = 'none';
+    document.getElementById(`cancelFavPose${index}`).style.display = 'block';
+    document.getElementById(`okFavPose${index}`).style.display = 'block';
+    document.getElementById(`deleteFavPose${index}`).style.display = 'none';
+    document.getElementById(`addConfigFavPose${index}`).style.display = 'none';
+    document.getElementById(`editFavPoseValues${index}`).style.display = 'block';
+}
+
+function cancelEditFavPose(index) {
+    document.getElementById(`editFavPose${index}`).style.display = 'block';
+    document.getElementById(`cancelFavPose${index}`).style.display = 'none';
+    document.getElementById(`okFavPose${index}`).style.display = 'none';
+    document.getElementById(`deleteFavPose${index}`).style.display = 'block';
+    document.getElementById(`addConfigFavPose${index}`).style.display = 'block';
+    document.getElementById(`editFavPoseValues${index}`).style.display = 'none';
+
+    const pose = fav_poses[index];
+    document.getElementById(`favPoseName${index}`).value = pose.name;
+    pose.values[0].slice(0, -1).forEach((value, i) => {
+        document.getElementById(`favJoint${index}_${i}`).value = value.toFixed(2);
+    });
+    document.getElementById(`favTimer${index}`).value = pose.values[0][pose.values[0].length - 1].toFixed(1);
+}
+
+function okEditFavPose(index) {
+    document.getElementById(`editFavPose${index}`).style.display = 'block';
+    document.getElementById(`cancelFavPose${index}`).style.display = 'none';
+    document.getElementById(`okFavPose${index}`).style.display = 'none';
+    document.getElementById(`deleteFavPose${index}`).style.display = 'block';
+    document.getElementById(`addConfigFavPose${index}`).style.display = 'block';
+    document.getElementById(`editFavPoseValues${index}`).style.display = 'none';
+
+    const oldName = fav_poses[index].name;
+    const newName = document.getElementById(`favPoseName${index}`).value.trim();
+    if (!newName) {
+        alert('El nombre de la pose no puede estar vacío.');
+        return;
+    }
+    const newValues = [];
+    for (let i = 0; i < jointNames.length; i++) {
+        const jointValue = parseFloat(document.getElementById(`favJoint${index}_${i}`).value);
+        if (isNaN(jointValue)) {
+            alert(`Valor inválido para Joint ${i + 1}.`);
+            return;
+        }
+        newValues.push(jointValue);
+    }
+    const timerValue = parseFloat(document.getElementById(`favTimer${index}`).value);
+    if (isNaN(timerValue) || timerValue <= 0 || timerValue > 60) {
+        alert('Por favor, ingresa un valor de temporizador válido mayor que 0 y menor o igual a 60 segundos.');
+        return;
+    }
+    newValues.push(timerValue);
+    fav_poses[index] = { name: newName, values: [newValues] };
+
+    socket.emit('update_favorite_poses', {new_name: newName, old_name: oldName, values: newValues});
+
+    updateFavPosesList();
 }
 
 function getCurrentSliderPositions() {
@@ -262,6 +344,16 @@ socket.on('favorite_pose_saved', (data) => {
 
 socket.on('favorite_pose_error', (data) => {
     alert(`Error saving favorite pose: ${data.error}`);
+});
+
+socket.on('favorite_pose_updated', (data) => {
+    alert(`Favorite pose '${data.new_name}' updated successfully!`);
+    initialListFavPoses();
+});
+
+socket.on('favorite_pose_deleted', (data) => {
+    alert(`Favorite pose '${data.name}' deleted successfully!`);
+    initialListFavPoses();
 });
 
 function updateMovementUI() {

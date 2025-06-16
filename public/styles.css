@@ -437,7 +437,8 @@ button:disabled {
     cursor: pointer ;
 }
 
-.left-arrow {
+.left-arrow, .cancel-edit-fav-pose, .ok-edit-fav-pose,
+.edit-fav-pose-values {
     cursor: pointer;
     display: none;
 }
