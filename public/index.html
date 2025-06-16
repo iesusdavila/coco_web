@@ -9,82 +9,84 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <div class="site-header">
-            <h1>Coco Pose Builder <img src="assets/icons/robot.png" alt="Robot Icon" class="icon"/></h1>  
-        
-            <div class="button-group-header">
-                <button class="btn-header" onclick="importPoses()">
-                    Import
-                </button>
-                <button class="btn-header" onclick="exportPoses()">
-                    Export
-                </button>
-                <div id="status" class="status disconnected">
-                    Disconnected
-                </div>
-            </div>
-        </div>
-
-        <div class="button-group">
-            <button class="btn primary" id="moveButton" onclick="moveRobotToCurrent()">
-                Move Robot
-            </button>
-            <button class="btn danger" id="stopButton" onclick="stopEmergencyRobot()">
-                Stop Robot
-            </button>
-            <button class="btn" id="savePoseButton" onclick="savePose()">
-                Save Pose
-            </button>
-            <button class="btn secondary" onclick="reseatJoints()">
-                Reset Joints
-            </button>
-        </div>
-
-        <div id="sliders" class="controls">
-            <!-- sliders se autogeneran -->
-        </div>
-
-        <div class="timer-cancel-save">
-            <div class="timer">
-                <label>Execution time for the pose</label>
-                <div class="timer-controls">
-                    <input type="number" class="timer-input" min="0" max="60" step="0.5" value="2.0" id="timerInput">
-                    <span class="timer-unit">seconds</span>
-                </div>
-            </div>
-            <div class="button-group-save">
-                <button class="btn reset" id="cancelButton">
-                    Cancel
-                </button>
-                <button class="btn save" id="saveButton">
-                    Save
-                </button>
-            </div>
-        </div>
-
-        <div class="configurations">
-            <div class="config-header">
-                <h3>Saved Poses</h3>
-                <div class="config-buttons">
-                    <button class="btn execute" id="executeButton" onclick="executeAllPoses()" disabled>
-                        Execute All Poses
+    <div class="main-container">
+        <div class="container">
+            <div class="site-header">
+                <h1>Coco Pose Builder <img src="assets/icons/robot.png" alt="Robot Icon" class="icon"/></h1>  
+            
+                <div class="button-group-header">
+                    <button class="btn-header" onclick="importPoses()">
+                        Import
                     </button>
-                    <button class="btn delete-all" onclick="deleteAllItems()">
-                        Delete All
+                    <button class="btn-header" onclick="exportPoses()">
+                        Export
+                    </button>
+                    <div id="status" class="status disconnected">
+                        Disconnected
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn primary" id="moveButton" onclick="moveRobotToCurrent()">
+                    Move Robot
+                </button>
+                <button class="btn danger" id="stopButton" onclick="stopEmergencyRobot()">
+                    Stop Robot
+                </button>
+                <button class="btn" id="savePoseButton" onclick="savePose()">
+                    Save Pose
+                </button>
+                <button class="btn secondary" onclick="reseatJoints()">
+                    Reset Joints
+                </button>
+            </div>
+
+            <div id="sliders" class="controls">
+                <!-- sliders se autogeneran -->
+            </div>
+
+            <div class="timer-cancel-save">
+                <div class="timer">
+                    <label>Execution time for the pose</label>
+                    <div class="timer-controls">
+                        <input type="number" class="timer-input" min="0" max="60" step="0.5" value="2.0" id="timerInput">
+                        <span class="timer-unit">seconds</span>
+                    </div>
+                </div>
+                <div class="button-group-save">
+                    <button class="btn reset" id="cancelButton">
+                        Cancel
+                    </button>
+                    <button class="btn save" id="saveButton">
+                        Save
                     </button>
                 </div>
             </div>
-            <div id="configList" class="config-list">
-                <div class="config-item">There are no saved poses.</div>
+
+            <div class="configurations">
+                <div class="config-header">
+                    <h3>Saved Poses</h3>
+                    <div class="config-buttons">
+                        <button class="btn execute" id="executeButton" onclick="executeAllPoses()" disabled>
+                            Execute All Poses
+                        </button>
+                        <button class="btn delete-all" onclick="deleteAllItems()">
+                            Delete All
+                        </button>
+                    </div>
+                </div>
+                <div id="configList" class="config-list">
+                    <div class="config-item">There are no saved poses.</div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="fav-poses" id="favPoses">
-        <h3>Favorite Poses</h3>
-        <div class="fav-poses-list">
-            <!-- Lista de poses favoritas se autogeneran -->
+        <div class="fav-poses" id="favPoses">
+            <h2>Favorite Poses</h3>
+            <div class="fav-poses-list">
+                <!-- Lista de poses favoritas se autogeneran -->
+            </div>
         </div>
     </div>
 

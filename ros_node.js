@@ -296,7 +296,7 @@ class JointTrajectoryController {
 
             socket.on('save_configuration_from_fav', (data) => {
                 const { name, values } = data;
-                socket.emit('configuration_saved_from_fav', { positions: [...values] });
+                socket.emit('configuration_saved_from_fav', { positions: values });
             });
             
             socket.on('save_favorite_pose', (data) => {

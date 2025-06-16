@@ -62,13 +62,15 @@ function createSliders() {
 }
 
 function initialListFavPoses() {
+    fav_poses.length = 0; 
     fetch('assets/files/favorite_poses.txt')
         .then(response => response.text())
         .then(data => {
             const lines = data.split('\n').filter(line => line.trim() !== '');
             lines.forEach(line => {
                 const [name, ...values] = line.split(':').map(val => val.trim());
-                fav_poses.push({ name, values: values });
+                values_list = values.map(val => val.split(',').map(s => parseFloat(s.trim())));
+                fav_poses.push({ name, values: values_list });
             });
             updateFavPosesList();
         })
@@ -79,20 +81,45 @@ function updateFavPosesList() {
     const favPosesList = document.querySelector('.fav-poses-list');
     if (!favPosesList) return;
 
+    console.log(fav_poses);
     favPosesList.innerHTML = fav_poses.map((pose, index) => 
         `<div class="fav-pose-item">
-            <span>${pose.name}</span>
-            <button onclick="addToListPoses(${index})">Add to List</button>
+            <img class="right-arrow" id="viewMore${index}" src="assets/icons/right-arrow.png" alt="View More" onclick="viewMore(${index})"/>
+            <img class="left-arrow" id="viewLess${index}" src="assets/icons/left-arrow.png" alt="View Less" onclick="viewLess(${index})"/>
+            <h3>${pose.name}</h3>
+            <img class="add" src="assets/icons/add.png" alt="Add to List" onclick="addToListPoses(${index})"/>
+            <img class="edit-fav-pose" src="assets/icons/edit-2.png" alt="Edit" onclick="editFavPose(${index})"/>
+            <img class="delete-fav-pose" src="assets/icons/remove.png" alt="Delete" onclick="deleteFavPose(${index})"/>
+        </div>
+        <div class="fav-pose-values" id="favPoseValues${index}">            
+            ${pose.values.map((values, i) => 
+                `<div class="fav-pose-values-item">
+                    ${values.slice(0,-1).map((val, i_val) => `<span>Joint${i_val+1}: ${val.toFixed(2)}</span>`).join(', ')}
+                    <span>Timer: ${values[values.length - 1].toFixed(1)} s</span>
+                </div>`
+            ).join('')}
         </div>`
     ).join('');
 }
 
+function viewMore(index) {
+    document.getElementById(`viewMore${index}`).style.display = 'none';
+    document.getElementById(`viewLess${index}`).style.display = 'block';
+    document.getElementById(`favPoseValues${index}`).style.display = 'block';
+}
+
+function viewLess(index) {
+    document.getElementById(`viewMore${index}`).style.display = 'block';
+    document.getElementById(`viewLess${index}`).style.display = 'none';
+    document.getElementById(`favPoseValues${index}`).style.display = 'none';
+}
+
 function addToListPoses(index) {    
     const pose = fav_poses[index];
-    
+
     socket.emit('save_configuration_from_fav', {
         name: pose.name,
-        values: pose.values[0].split(',').map(s => parseFloat(s.trim()))
+        values: pose.values
     });
 }
 
@@ -449,8 +476,8 @@ function saveFavPose(index) {
         name: poseName.trim(),
         values: pose
     });
-    fav_poses.push([...pose]);
-    // updateConfigList();
+    // fav_poses.push([...pose]);
+    initialListFavPoses();
 }
 
 function updateConfigList() {
