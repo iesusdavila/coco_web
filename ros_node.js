@@ -350,8 +350,9 @@ class JointTrajectoryController {
             }
             );
 
-            socket.on('delete_favorite_pose', (name) => {
+            socket.on('delete_favorite_pose', (data) => {
                 const filePath = path.join(__dirname, 'public', 'assets', 'files', 'favorite_poses.txt');
+                const { name } = data;
                 fs.readFile(filePath, 'utf8', (err, content) => {
                     if (err) {
                         console.error('Error reading favorite poses file:', err);

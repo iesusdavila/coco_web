@@ -205,6 +205,20 @@ function okEditFavPose(index) {
     updateFavPosesList();
 }
 
+function deleteFavPose(index) {
+    if (index < 0 || index >= fav_poses.length) {
+        console.error('Index out of range:', index);
+        return;
+    }
+    
+    const poseName = fav_poses[index].name;
+    if (confirm(`Are you sure you want to delete the favorite pose '${poseName}'?`)) {
+        socket.emit('delete_favorite_pose', { name: poseName });
+        fav_poses.splice(index, 1);
+        updateFavPosesList();
+    }
+}   
+
 function getCurrentSliderPositions() {
     return jointNames.map(joint => parseFloat(sliders[joint].value));
 }
