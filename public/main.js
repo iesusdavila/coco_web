@@ -61,6 +61,18 @@ function createSliders() {
     });
 }
 
+function showMenu() {
+    document.getElementById('viewMenu').style.display = 'none';
+    document.getElementById('closeMenu').style.display = 'block';
+    document.getElementById('favPoses').style.display = 'block';
+}
+
+function closeMenu() {
+    document.getElementById('viewMenu').style.display = 'block';
+    document.getElementById('closeMenu').style.display = 'none';
+    document.getElementById('favPoses').style.display = 'none';
+}
+
 function initialListFavPoses() {
     fav_poses.length = 0; 
     fetch('assets/files/favorite_poses.txt')
