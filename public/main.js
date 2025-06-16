@@ -252,7 +252,7 @@ socket.on('configuration_saved', (data) => {
 });
 
 socket.on('configuration_saved_from_fav', (data) => {
-    poses.push([...data.positions]);
+    poses.push(data.positions[0]);
     updateConfigList();
 });
 
