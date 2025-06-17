@@ -455,10 +455,39 @@ button:disabled {
     cursor: pointer ;
 }
 
-.left-arrow, .cancel-edit-fav-pose, .ok-edit-fav-pose,
-.edit-fav-pose-values {
+.left-arrow, .cancel-edit-fav-pose, .ok-edit-fav-pose {
     cursor: pointer;
     display: none;
+}
+
+.edit-fav-pose-values {
+    display: none;
+}
+
+.edit-fav-pose-values div {
+    display: flex;
+    flex-direction: row;
+    margin: 10px 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit-fav-pose-values label {
+    width: 80px;
+    font-size: 16px;
+}
+
+.edit-fav-pose-values input {
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #dddbe3;
+    border-radius: 8px;
+    outline: none;
+    transition: 0.3s ease;
+    width: 120px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #dddbe3;
 }
 
 .add, .edit-fav-pose, .delete-fav-pose {

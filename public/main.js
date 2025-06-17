@@ -120,16 +120,20 @@ function updateFavPosesList() {
             ).join('')}
         </div>
         <div class="edit-fav-pose-values" id="editFavPoseValues${index}">
-            <label for="favPoseName${index}">Name:</label>
-            <input type="text" id="favPoseName${index}" value="${pose.name}">
+            <div>
+                <label for="favPoseName${index}">Name:</label>
+                <input type="text" id="favPoseName${index}" value="${pose.name}">
+            </div>
             ${pose.values[0].slice(0, -1).map((values, i) => 
                 `<div>
                     <label for="favJoint${index}_${i}">Joint ${i + 1}:</label>
                     <input type="number" id="favJoint${index}_${i}" value="${values.toFixed(2)}" step="0.01">
                 </div>`
             ).join('')}
-            <label for="favTimer${index}">Timer (s):</label>
-            <input type="number" id="favTimer${index}" value="${pose.values[0][pose.values[0].length - 1].toFixed(1)}" step="0.1" min="0.1" max="60">
+            <div>
+                <label for="favTimer${index}">Timer (s):</label>
+                <input type="number" id="favTimer${index}" value="${pose.values[0][pose.values[0].length - 1].toFixed(1)}" step="0.1" min="0.1" max="60">
+            </div>                
         </div>
     `
     ).join('');
