@@ -14,7 +14,8 @@ class JointTrajectoryController {
         this.jointNames = [
             'joint_1', 'joint_2', 'joint_3', 'joint_4', 
             'joint_5', 'joint_6', 'joint_7', 'joint_8',
-            'joint_9', 'joint_10', 'joint_11', 'joint_12'
+            'joint_9', 'joint_10', 'joint_11', 'joint_12',
+            'joint_13' 
         ];
         this.app = express();
         this.server = http.createServer(this.app);

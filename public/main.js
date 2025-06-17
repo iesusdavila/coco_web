@@ -1,6 +1,6 @@
 const socket = io();
 
-const jointNames = Array.from({ length: 12 }, (_, i) => `joint_${i + 1}`);
+const jointNames = Array.from({ length: 13 }, (_, i) => `joint_${i + 1}`);
 const sliders = {};
 const poses = [];
 const fav_poses = [];
@@ -8,17 +8,18 @@ let isRobotMoving = false;
 
 const jointsLimits = {
     joint_1: [-0.78, 0.78],
-    joint_2: [-0.3, 0.3],
-    joint_3: [-0.52, 0.52],
-    joint_4: [-0.26, 0.78],
-    joint_5: [-0.75, 1.50],
-    joint_6: [0.05, 0.98],
-    joint_7: [-0.69, 0.69],
-    joint_8: [0.15, 1.50],
-    joint_9: [-0.75, 1.50],
-    joint_10: [0.05, 0.98],
-    joint_11: [-0.69, 0.69],
-    joint_12: [0.15, 1.50]
+    joint_2: [-0.52, 0.52],
+    joint_3: [-0.26, 0.35],
+    joint_4: [-0.78, 1.50],
+    joint_5: [-0.01, 1.0],
+    joint_6: [-0.5, 0.78],
+    joint_7: [-0.86, 0.22],
+    joint_8: [-0.56, 1.50],
+    joint_9: [-0.78, 1.57],
+    joint_10: [-0.01, 1.04],
+    joint_11: [-0.5, 0.78],
+    joint_12: [-0.86, 0.28],
+    joint_13: [-0.56, 1.50]
 };
 
 const statusElement = document.getElementById('status');
