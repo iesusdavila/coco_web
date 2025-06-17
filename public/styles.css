@@ -31,7 +31,7 @@ body {
 }
 
 .container {
-    max-width: 70%;
+    max-width: 900px;
     margin: 0;
     background: rgba(255, 255, 255, 0.1);
     padding: 30px;
@@ -449,6 +449,10 @@ button:disabled {
 
 .fav-pose-item h3 {
     margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
 }
 
 .right-arrow {

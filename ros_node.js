@@ -10,7 +10,7 @@ class JointTrajectoryController {
     constructor() {
         this.node = null;
         this.actionClient = null;
-        this.jointPositions = Array(12).fill(0.0);
+        this.jointPositions = Array(13).fill(0.0);
         this.jointNames = [
             'joint_1', 'joint_2', 'joint_3', 'joint_4', 
             'joint_5', 'joint_6', 'joint_7', 'joint_8',
@@ -302,7 +302,7 @@ class JointTrajectoryController {
             
             socket.on('save_favorite_pose', (data) => {
                 const { name, values } = data;
-                if (!name || !Array.isArray(values) || values.length !== 13) {
+                if (!name || !Array.isArray(values) || values.length !== 14) {
                     socket.emit('favorite_pose_error', { error: 'Invalid data for favorite pose.' });
                     return;
                 }

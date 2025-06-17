@@ -584,6 +584,16 @@ function hiddenEditBtns() {
     });
 }
 
+function playPosition(index) {
+    const config = poses[index];
+    socket.emit('move_to_position', {
+        positions: config.slice(0, -1),
+        duration: config[config.length - 1]
+    });
+
+    updateMovementUI();
+}
+
 function saveFavPose(index) {
     if (index < 0 || index >= poses.length) {
         console.error('Index out of range:', index);
@@ -610,6 +620,7 @@ function updateConfigList() {
         return;
     }
     
+    console.log(poses[0]);
     configListDiv.innerHTML = poses.map((config, index) => 
         `<div class="config-item-container" id="configItem${index}">
             <div>
@@ -623,8 +634,7 @@ function updateConfigList() {
                 ${config.slice(0, -1).map((val, i) => `<span class="joint-value">${jointNames[i].replace('_', ' ')}: ${val.toFixed(2)}</span>`).join(', ')}
             </div>
             <span class="timer-value">${config[config.length - 1].toFixed(1)} s</span>
-            <img class="play" src="assets/icons/play.png" alt="Play" onclick="socket.emit('execute_single_pose', { pose: config })"/>
-            <!-- <img class="pause" src="assets/icons/pause.png" alt="Pause" onclick="socket.emit('pause_movement')"/> -->
+            <img class="play" src="assets/icons/play.png" alt="Play" id="playBtn${index}" onclick="playPosition(${index})"/>
             <img class="save-fav" src="assets/icons/save.png" alt="Save" onclick="saveFavPose(${index})"/>  
             <img class="edit" src="assets/icons/edit.png" alt="Edit" onclick="editPose(${index})"/>
             <img class="delete" src="assets/icons/trash.png" alt="Delete" onclick="deleteItem(${index})"/>
