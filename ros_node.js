@@ -328,11 +328,6 @@ class JointTrajectoryController {
                     }
                     const lines = content.split('\n').filter(line => line.trim() !== '');
                     const updatedLines = lines.map(line => {
-                        console.log(line);
-                        console.log(old_name);
-                        console.log(line.startsWith(old_name + ':'));
-                        console.log(new_name);
-                        console.log(line.startsWith(new_name + ':'));
                         if (line.startsWith(old_name + ':')) {
                             return `${new_name}: ${values.map(v => v.toFixed(3)).join(', ')}`;
                         }
