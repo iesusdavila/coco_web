@@ -442,7 +442,7 @@ button:disabled {
 
 .fav-pose-item {
     display: grid;
-    grid-template-columns: 1fr 3fr repeat(3, 1fr);
+    grid-template-columns: 1fr 6fr repeat(2, 1fr);
     align-items: center;
     margin-bottom: 10px;
 }
@@ -452,7 +452,6 @@ button:disabled {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 150px;
 }
 
 .right-arrow {
@@ -507,6 +506,38 @@ button:disabled {
     padding: 8px;
     margin-bottom: 10px;
     border-radius: 5px;
+}
+
+.options-menu {
+    position: absolute;
+    background-color: #8223c0;
+    border: 1px solid #43bcff;
+    padding: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    z-index: 9999;
+    right: 0;
+    top: -50%;
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+    border-radius: 25px;
+}
+
+.options-menu.hidden {
+    display: none;
+}
+
+.menu-container {
+    position: relative; 
+    display: inline-block;
+}
+
+.fav-pose-separator {
+    width: 100%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.2);
+    margin: 0 0 10px 0;
+    padding: 0;
 }
 
 @media (max-width: 1200px) {

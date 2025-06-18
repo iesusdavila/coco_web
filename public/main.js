@@ -94,7 +94,6 @@ function updateFavPosesList() {
     const favPosesList = document.querySelector('.fav-poses-list');
     if (!favPosesList) return;
 
-    console.log(fav_poses);
     favPosesList.innerHTML = fav_poses.map((pose, index) => 
         `<div class="fav-pose-item">
             <div>
@@ -102,15 +101,16 @@ function updateFavPosesList() {
                 <img class="left-arrow" id="viewLess${index}" src="assets/icons/left-arrow.png" alt="View Less" onclick="viewLess(${index})"/>
             </div>
             <h3>${pose.name}</h3>
+            <img class="cancel-edit-fav-pose" id="cancelFavPose${index}" src="assets/icons/cancel.png" alt="Cancel" onclick="cancelEditFavPose(${index})"/>
             <img class="add" id="addConfigFavPose${index}" src="assets/icons/add.png" alt="Add to List" onclick="addToListPoses(${index})"/>
-            <div>
-                <img class="edit-fav-pose" id="editFavPose${index}" src="assets/icons/edit-2.png" alt="Edit" onclick="editFavPose(${index})"/>
-                <img class="cancel-edit-fav-pose" id="cancelFavPose${index}" src="assets/icons/cancel.png" alt="Cancel" onclick="cancelEditFavPose(${index})"/>
+            <div class="menu-container" id="menuContainer${index}">
+                <div class="options-menu" id="optionsMenu${index}">
+                    <img class="edit-fav-pose" id="editFavPose${index}" src="assets/icons/edit-2.png" alt="Edit" onclick="editFavPose(${index})"/>
+                    <img class="delete-fav-pose" id="deleteFavPose${index}" src="assets/icons/trash.png" alt="Delete" onclick="deleteFavPose(${index})"/>
+                </div>
+                <img class="menu-dots" id="menuDotsFavPose${index}" src="assets/icons/menu-dots.png" alt="Menu" onclick="menuFavPoses(${index})"/>
             </div>
-            <div>
-                <img class="delete-fav-pose" id="deleteFavPose${index}" src="assets/icons/trash.png" alt="Delete" onclick="deleteFavPose(${index})"/>
-                <img class="ok-edit-fav-pose" id="okFavPose${index}" src="assets/icons/ok.png" alt="Ok" onclick="okEditFavPose(${index})"/>
-            </div>
+            <img class="ok-edit-fav-pose" id="okFavPose${index}" src="assets/icons/ok.png" alt="Ok" onclick="okEditFavPose(${index})"/>
         </div>
         <div class="fav-pose-values" id="favPoseValues${index}">       
             ${pose.values.map((values, i) => 
@@ -136,8 +136,11 @@ function updateFavPosesList() {
                 <input type="number" id="favTimer${index}" value="${pose.values[0][pose.values[0].length - 1].toFixed(1)}" step="0.1" min="0.1" max="60">
             </div>                
         </div>
+        <div class="fav-pose-separator"></div>
     `
     ).join('');
+
+    document.querySelectorAll('.options-menu').forEach(m => m.classList.add('hidden'));
 }
 
 function viewMore(index) {
@@ -161,12 +164,22 @@ function addToListPoses(index) {
     });
 }
 
+function menuFavPoses(index) {
+    const menu = document.getElementById(`optionsMenu${index}`);
+    console.log(menu);
+    document.querySelectorAll('.options-menu').forEach(m => {
+        if (m !== menu) m.classList.add('hidden');
+    });
+    menu.classList.toggle('hidden');
+}
+
 function editFavPose(index) {
     document.getElementById(`editFavPose${index}`).style.display = 'none';
     document.getElementById(`cancelFavPose${index}`).style.display = 'block';
     document.getElementById(`okFavPose${index}`).style.display = 'block';
     document.getElementById(`deleteFavPose${index}`).style.display = 'none';
     document.getElementById(`addConfigFavPose${index}`).style.display = 'none';
+    document.getElementById(`menuContainer${index}`).style.display = 'none';
     document.getElementById(`editFavPoseValues${index}`).style.display = 'block';
 }
 
@@ -176,6 +189,7 @@ function cancelEditFavPose(index) {
     document.getElementById(`okFavPose${index}`).style.display = 'none';
     document.getElementById(`deleteFavPose${index}`).style.display = 'block';
     document.getElementById(`addConfigFavPose${index}`).style.display = 'block';
+    document.getElementById(`menuContainer${index}`).style.display = 'block';
     document.getElementById(`editFavPoseValues${index}`).style.display = 'none';
 
     const pose = fav_poses[index];
@@ -192,6 +206,7 @@ function okEditFavPose(index) {
     document.getElementById(`okFavPose${index}`).style.display = 'none';
     document.getElementById(`deleteFavPose${index}`).style.display = 'block';
     document.getElementById(`addConfigFavPose${index}`).style.display = 'block';
+    document.getElementById(`menuContainer${index}`).style.display = 'block';
     document.getElementById(`editFavPoseValues${index}`).style.display = 'none';
 
     const oldName = fav_poses[index].name;
@@ -648,4 +663,11 @@ document.addEventListener('DOMContentLoaded', () => {
     initialListFavPoses();
     createSliders();
     updateMovementUI();
+});
+
+document.addEventListener('click', function(event) {
+    const isMenuClick = event.target.closest('.menu-container');
+    if (!isMenuClick) {
+        document.querySelectorAll('.options-menu').forEach(menu => menu.classList.add('hidden'));
+    }
 });
