@@ -306,7 +306,7 @@ class JointTrajectoryController {
                     socket.emit('favorite_pose_error', { error: 'Invalid data for favorite pose.' });
                     return;
                 }
-                const line = `${name}: ${values.map(v => v.toFixed(3)).join(', ')} \n`;
+                const line = `${name}: ${values.map(v => v.toFixed(2)).join(', ')} \n`;
                 const filePath = path.join(__dirname, 'public', 'assets', 'files', 'favorite_poses.txt');
                 fs.appendFile(filePath, line, (err) => {
                     if (err) {

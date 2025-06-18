@@ -10,10 +10,10 @@ const jointsLimits = {
     joint_1: [-0.78, 0.78],
     joint_2: [-0.52, 0.52],
     joint_3: [-0.26, 0.35],
-    joint_4: [-0.78, 1.50],
-    joint_5: [-0.01, 1.0],
+    joint_4: [-0.78, 1.57],
+    joint_5: [-0.01, 1.04],
     joint_6: [-0.5, 0.78],
-    joint_7: [-0.86, 0.22],
+    joint_7: [-0.86, 0.28],
     joint_8: [-0.56, 1.50],
     joint_9: [-0.78, 1.57],
     joint_10: [-0.01, 1.04],
@@ -166,7 +166,6 @@ function addToListPoses(index) {
 
 function menuFavPoses(index) {
     const menu = document.getElementById(`optionsMenu${index}`);
-    console.log(menu);
     document.querySelectorAll('.options-menu').forEach(m => {
         if (m !== menu) m.classList.add('hidden');
     });
@@ -635,9 +634,21 @@ function updateConfigList() {
         return;
     }
     
-    console.log(poses[0]);
-    configListDiv.innerHTML = poses.map((config, index) => 
-        `<div class="config-item-container" id="configItem${index}">
+    configListDiv.innerHTML = poses.map((config, index) => {
+        const jointValues = config.slice(0, -1);
+
+        const matchedPose = fav_poses.find(pose => 
+            pose.values[0].slice(0, -1).length === jointValues.length &&
+            pose.values[0].slice(0, -1).every((val, i) => Math.abs(val - jointValues[i]) < 0.001)
+        );
+
+        const configHTML = matchedPose
+            ? `<span class="pose-name">${matchedPose.name}</span>`
+            : config.slice(0, -1).map((val, i) =>
+                `<span class="joint-value">${jointNames[i].replace('_', ' ')}: ${val.toFixed(2)}</span>`
+              ).join(', ');
+
+        return `<div class="config-item-container" id="configItem${index}">
             <div>
                 <img class="move" src="assets/icons/arrow-up.png" alt="Move Up" onclick="moveItem(${index}, -1)"/>            
                 <div class="index-item">
@@ -646,7 +657,7 @@ function updateConfigList() {
                 <img class="move" src="assets/icons/arrow-down.png" alt="Move Down" onclick="moveItem(${index}, 1)"/>
             </div>
             <div class="config-item">
-                ${config.slice(0, -1).map((val, i) => `<span class="joint-value">${jointNames[i].replace('_', ' ')}: ${val.toFixed(2)}</span>`).join(', ')}
+                ${configHTML}
             </div>
             <span class="timer-value">${config[config.length - 1].toFixed(1)} s</span>
             <img class="play" src="assets/icons/play.png" alt="Play" id="playBtn${index}" onclick="playPosition(${index})"/>
@@ -654,7 +665,7 @@ function updateConfigList() {
             <img class="edit" src="assets/icons/edit.png" alt="Edit" onclick="editPose(${index})"/>
             <img class="delete" src="assets/icons/trash.png" alt="Delete" onclick="deleteItem(${index})"/>
         </div>`
-    ).join('');
+    }).join('');
     
     updateMovementUI();
 }
