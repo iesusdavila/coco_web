@@ -551,7 +551,7 @@ button:disabled {
 
     .fav-poses {
         position: absolute; 
-        top: 150px;
+        top: 110px;
         z-index: 9999; 
         overflow-y: auto; 
         background: rgb(62, 64, 79);
@@ -559,6 +559,12 @@ button:disabled {
         border: 2px solid rgba(146, 31, 219, 0.81);
     }
 
+}
+
+@media (max-width: 911px) {
+    .fav-poses {
+        top: 150px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -590,5 +596,11 @@ button:disabled {
 
     .fav-poses {
         width: 70%;
+    }
+}
+
+@media (max-width: 498px) {
+    .fav-poses {
+        top: 200px;
     }
 }
