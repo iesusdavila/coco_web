@@ -47,11 +47,11 @@ function createSliders() {
 
         const slider = container.querySelector('input');
         const valueDisplay = container.querySelector('.value-display');
-        
+
         slider.addEventListener('input', () => {
             const value = parseFloat(slider.value);
             valueDisplay.textContent = value.toFixed(2);
-            
+
             socket.emit('update_joint', {
                 jointIndex: index,
                 position: value
@@ -75,7 +75,7 @@ function closeMenu() {
 }
 
 function initialListFavPoses() {
-    fav_poses.length = 0; 
+    fav_poses.length = 0;
     fetch('assets/files/favorite_poses.txt')
         .then(response => response.text())
         .then(data => {
@@ -94,7 +94,7 @@ function updateFavPosesList() {
     const favPosesList = document.querySelector('.fav-poses-list');
     if (!favPosesList) return;
 
-    favPosesList.innerHTML = fav_poses.map((pose, index) => 
+    favPosesList.innerHTML = fav_poses.map((pose, index) =>
         `<div class="fav-pose-item">
             <div>
                 <img class="right-arrow" id="viewMore${index}" src="assets/icons/right-arrow.png" alt="View More" onclick="viewMore(${index})"/>
@@ -113,24 +113,24 @@ function updateFavPosesList() {
             <img class="ok-edit-fav-pose" id="okFavPose${index}" src="assets/icons/ok.png" alt="Ok" onclick="okEditFavPose(${index})"/>
         </div>
         <div class="fav-pose-values" id="favPoseValues${index}">       
-            ${pose.values.map((values, i) => 
-                `<div class="fav-pose-values-item">
-                    ${values.slice(0,-1).map((val, i_val) => `<span>Joint${i_val+1}: ${val.toFixed(2)}</span>`).join(', ')}
+            ${pose.values.map((values, i) =>
+            `<div class="fav-pose-values-item">
+                    ${values.slice(0, -1).map((val, i_val) => `<span>Joint${i_val + 1}: ${val.toFixed(2)}</span>`).join(', ')}
                     <span>Timer: ${values[values.length - 1].toFixed(1)} s</span>
                 </div>`
-            ).join('')}
+        ).join('')}
         </div>
         <div class="edit-fav-pose-values" id="editFavPoseValues${index}">
             <div>
                 <label for="favPoseName${index}">Name:</label>
                 <input type="text" id="favPoseName${index}" value="${pose.name}">
             </div>
-            ${pose.values[0].slice(0, -1).map((values, i) => 
-                `<div>
+            ${pose.values[0].slice(0, -1).map((values, i) =>
+            `<div>
                     <label for="favJoint${index}_${i}">Joint ${i + 1}:</label>
                     <input type="number" id="favJoint${index}_${i}" value="${values.toFixed(2)}" step="0.01">
                 </div>`
-            ).join('')}
+        ).join('')}
             <div>
                 <label for="favTimer${index}">Timer (s):</label>
                 <input type="number" id="favTimer${index}" value="${pose.values[0][pose.values[0].length - 1].toFixed(1)}" step="0.1" min="0.1" max="60">
@@ -155,7 +155,7 @@ function viewLess(index) {
     document.getElementById(`favPoseValues${index}`).style.display = 'none';
 }
 
-function addToListPoses(index) {    
+function addToListPoses(index) {
     const pose = fav_poses[index];
 
     socket.emit('save_configuration_from_fav', {
@@ -231,7 +231,7 @@ function okEditFavPose(index) {
     newValues.push(timerValue);
     fav_poses[index] = { name: newName, values: [newValues] };
 
-    socket.emit('update_favorite_poses', {new_name: newName, old_name: oldName, values: newValues});
+    socket.emit('update_favorite_poses', { new_name: newName, old_name: oldName, values: newValues });
 
     updateFavPosesList();
 }
@@ -241,14 +241,14 @@ function deleteFavPose(index) {
         console.error('Index out of range:', index);
         return;
     }
-    
+
     const poseName = fav_poses[index].name;
     if (confirm(`Are you sure you want to delete the favorite pose '${poseName}'?`)) {
         socket.emit('delete_favorite_pose', { name: poseName });
         fav_poses.splice(index, 1);
         updateFavPosesList();
     }
-}   
+}
 
 function getCurrentSliderPositions() {
     return jointNames.map(joint => parseFloat(sliders[joint].value));
@@ -259,9 +259,9 @@ function moveRobotToCurrent() {
         alert('El robot ya se está moviendo. Espera a que termine o detén el movimiento.');
         return;
     }
-    
+
     const positions = getCurrentSliderPositions();
-    const duration = parseFloat(document.getElementById('timerInput').value); 
+    const duration = parseFloat(document.getElementById('timerInput').value);
 
     socket.emit('move_to_position', { positions, duration });
 }
@@ -275,12 +275,12 @@ function executeAllPoses() {
         alert('No hay poses guardadas para ejecutar.');
         return;
     }
-    
+
     if (isRobotMoving) {
         alert('El robot ya se está moviendo. Espera a que termine o detén el movimiento.');
         return;
     }
-    
+
     if (confirm(`¿Ejecutar secuencia de ${poses.length} poses?`)) {
         socket.emit('execute_trajectory', { trajectoryPoints: poses });
     }
@@ -337,7 +337,7 @@ socket.on('joint_updated', (data) => {
 socket.on('movement_completed', (data) => {
     isRobotMoving = false;
     updateMovementUI();
-    
+
     if (!data.success) {
         alert('El movimiento falló. Revisa la consola para más detalles.');
     }
@@ -346,7 +346,7 @@ socket.on('movement_completed', (data) => {
 socket.on('trajectory_completed', (data) => {
     isRobotMoving = false;
     updateMovementUI();
-    
+
     if (data.success) {
         alert('¡Secuencia de poses ejecutada exitosamente!');
     } else {
@@ -405,16 +405,16 @@ function updateMovementUI() {
     const moveButton = document.getElementById('moveButton');
     const stopButton = document.getElementById('stopButton');
     const executeButton = document.getElementById('executeButton');
-    
+
     if (moveButton) {
         moveButton.disabled = isRobotMoving;
         moveButton.textContent = isRobotMoving ? 'Moving...' : 'Move Robot';
     }
-    
+
     if (executeButton) {
         executeButton.disabled = isRobotMoving || poses.length === 0;
     }
-    
+
     if (isRobotMoving) {
         statusElement.textContent = 'Moving...';
         statusElement.className = 'status moving';
@@ -428,7 +428,7 @@ function importPoses() {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.txt';
-    poses.length = 0; 
+    poses.length = 0;
     input.onchange = () => {
         const file = input.files[0];
         if (!file) return;
@@ -476,11 +476,11 @@ function exportPoses() {
         alert('No hay poses para exportar');
         return;
     }
-    
-    const contenido = poses.map(config => 
+
+    const contenido = poses.map(config =>
         config.map(val => val.toFixed(3)).join(',')
     ).join('\n');
-    
+
     const blob = new Blob([contenido], { type: 'text/plain' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -520,7 +520,7 @@ function deleteItem(index) {
         console.error('Index out of range:', index);
         return;
     }
-    
+
     poses.splice(index, 1);
     updateConfigList();
 }
@@ -546,7 +546,7 @@ function editPose(index) {
     });
     document.getElementById('timerInput').value = config[config.length - 1].toFixed(1);
     document.getElementById('savePoseButton').disabled = true;
-    
+
     const cancelBtn = document.getElementById('cancelButton');
     cancelBtn.style.display = 'Block';
     cancelBtn.onclick = () => {
@@ -627,47 +627,75 @@ function saveFavPose(index) {
     initialListFavPoses();
 }
 
-function updateConfigList() {
-    if (poses.length === 0) {
-        configListDiv.innerHTML = '<div class="config-item">There are no saved poses.</div>';
-        updateMovementUI();
+function filterFavPoses() {
+    const searchTerm = document.getElementById('favSearchInput').value.toLowerCase().trim();
+    const favPosesList = document.querySelector('.fav-poses-list');
+    
+    if (!favPosesList) return;
+
+    if (searchTerm === '') {
+        updateFavPosesList();
         return;
     }
-    
-    configListDiv.innerHTML = poses.map((config, index) => {
-        const jointValues = config.slice(0, -1);
 
-        const matchedPose = fav_poses.find(pose => 
-            pose.values[0].slice(0, -1).length === jointValues.length &&
-            pose.values[0].slice(0, -1).every((val, i) => Math.abs(val - jointValues[i]) < 0.001)
-        );
+    const filteredPoses = fav_poses.filter(pose => 
+        pose.name.toLowerCase().includes(searchTerm)
+    );
 
-        const configHTML = matchedPose
-            ? `<span class="pose-name">${matchedPose.name}</span>`
-            : config.slice(0, -1).map((val, i) =>
-                `<span class="joint-value">${jointNames[i].replace('_', ' ')}: ${val.toFixed(2)}</span>`
-              ).join(', ');
+    if (filteredPoses.length === 0) {
+        favPosesList.innerHTML = '<div class="fav-pose-item">No poses found matching your search.</div>';
+        return;
+    }
 
-        return `<div class="config-item-container" id="configItem${index}">
+    favPosesList.innerHTML = filteredPoses.map(pose => {
+        const originalIndex = fav_poses.findIndex(p => p.name === pose.name && p.values === pose.values);
+        return `<div class="fav-pose-item">
             <div>
-                <img class="move" src="assets/icons/arrow-up.png" alt="Move Up" onclick="moveItem(${index}, -1)"/>            
-                <div class="index-item">
-                    <span class="index">${index + 1}</span>
+                <img class="right-arrow" id="viewMore${originalIndex}" src="assets/icons/right-arrow.png" alt="View More" onclick="viewMore(${originalIndex})"/>
+                <img class="left-arrow" id="viewLess${originalIndex}" src="assets/icons/left-arrow.png" alt="View Less" onclick="viewLess(${originalIndex})"/>
+            </div>
+            <h3>${pose.name}</h3>
+            <img class="cancel-edit-fav-pose" id="cancelFavPose${originalIndex}" src="assets/icons/cancel.png" alt="Cancel" onclick="cancelEditFavPose(${originalIndex})"/>
+            <img class="add" id="addConfigFavPose${originalIndex}" src="assets/icons/add.png" alt="Add to List" onclick="addToListPoses(${originalIndex})"/>
+            <div class="menu-container" id="menuContainer${originalIndex}">
+                <div class="options-menu" id="optionsMenu${originalIndex}">
+                    <img class="edit-fav-pose" id="editFavPose${originalIndex}" src="assets/icons/edit-2.png" alt="Edit" onclick="editFavPose(${originalIndex})"/>
+                    <img class="delete-fav-pose" id="deleteFavPose${originalIndex}" src="assets/icons/trash.png" alt="Delete" onclick="deleteFavPose(${originalIndex})"/>
                 </div>
-                <img class="move" src="assets/icons/arrow-down.png" alt="Move Down" onclick="moveItem(${index}, 1)"/>
+                <img class="menu-dots" id="menuDotsFavPose${originalIndex}" src="assets/icons/menu-dots.png" alt="Menu" onclick="menuFavPoses(${originalIndex})"/>
             </div>
-            <div class="config-item">
-                ${configHTML}
+            <img class="ok-edit-fav-pose" id="okFavPose${originalIndex}" src="assets/icons/ok.png" alt="Ok" onclick="okEditFavPose(${originalIndex})"/>
+        </div>
+        <div class="fav-pose-values" id="favPoseValues${originalIndex}">       
+            ${pose.values.map((values, i) =>
+            `<div class="fav-pose-values-item">
+                    ${values.slice(0, -1).map((val, i_val) => `<span>Joint${i_val + 1}: ${val.toFixed(2)}</span>`).join(', ')}
+                    <span>Timer: ${values[values.length - 1].toFixed(1)} s</span>
+                </div>`
+        ).join('')}
+        </div>
+        <div class="edit-fav-pose-values" id="editFavPoseValues${originalIndex}">
+            <div>
+                <label for="favPoseName${originalIndex}">Name:</label>
+                <input type="text" id="favPoseName${originalIndex}" value="${pose.name}">
             </div>
-            <span class="timer-value">${config[config.length - 1].toFixed(1)} s</span>
-            <img class="play" src="assets/icons/play.png" alt="Play" id="playBtn${index}" onclick="playPosition(${index})"/>
-            <img class="save-fav" src="assets/icons/save.png" alt="Save" onclick="saveFavPose(${index})"/>  
-            <img class="edit" src="assets/icons/edit.png" alt="Edit" onclick="editPose(${index})"/>
-            <img class="delete" src="assets/icons/trash.png" alt="Delete" onclick="deleteItem(${index})"/>
-        </div>`
+            ${pose.values[0].slice(0, -1).map((values, i) =>
+            `<div>
+                    <label for="favJoint${originalIndex}_${i}">Joint ${i + 1}:</label>
+                    <input type="number" id="favJoint${originalIndex}_${i}" value="${values.toFixed(2)}" step="0.01">
+                </div>`
+        ).join('')}
+            <div>
+                <label for="favTimer${originalIndex}">Timer (s):</label>
+                <input type="number" id="favTimer${originalIndex}" value="${pose.values[0][pose.values[0].length - 1].toFixed(1)}" step="0.1" min="0.1" max="60">
+            </div>                
+        </div>
+        <div class="fav-pose-separator"></div>
+    `;
     }).join('');
-    
-    updateMovementUI();
+
+    // Hide all options menus after filtering
+    document.querySelectorAll('.options-menu').forEach(m => m.classList.add('hidden'));
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -676,7 +704,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateMovementUI();
 });
 
-document.addEventListener('click', function(event) {
+document.addEventListener('click', function (event) {
     const isMenuClick = event.target.closest('.menu-container');
     if (!isMenuClick) {
         document.querySelectorAll('.options-menu').forEach(menu => menu.classList.add('hidden'));
