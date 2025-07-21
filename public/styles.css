@@ -641,8 +641,7 @@ button:disabled {
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(circle at 30% 70%, rgba(129, 34, 191, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 70% 30%, rgba(27, 238, 35, 0.05) 0%, transparent 50%);
+    background: radial-gradient(circle at 30% 70%, rgba(129, 34, 191, 0.1) 0%, transparent 50%), radial-gradient(circle at 70% 30%, rgba(27, 238, 35, 0.05) 0%, #00000070 50%);
     pointer-events: none;
 }
 
