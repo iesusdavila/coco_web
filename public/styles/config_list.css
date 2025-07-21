@@ -1,0 +1,78 @@
+.configurations {
+    margin-top: 30px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.config-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    align-content: flex-start;
+    overflow: auto;
+    flex-direction: row;
+    margin-bottom: 20px;
+}
+
+.configurations h3 {
+    margin: auto 0;
+    color: #1BEE23;
+    font-size: 20px;
+}
+
+.btn.delete-all{
+    background: linear-gradient(45deg, #F44336, #D32F2F);
+    box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+}
+
+.index-item .index{
+    background: rgba(171, 234, 134, 0.75);
+    padding: 5px 10px;
+    border-radius: 50%;
+    color: #2f2e2e;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.config-list {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+}
+
+.config-item {
+    width: 60%;
+    background: rgba(255, 255, 255, 0.05);
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.config-item-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    width: 98%;
+}
+
+.delete, .edit, .save-fav, .play {
+    cursor: pointer;
+}
+
+.btn-edit {
+    background: #f0f8ff00;
+    border: 0;
+}
+
+.move {
+    cursor: pointer;
+    width: 25px;
+    margin: 0 auto;
+    display: flex;
+    margin: 2px auto;
+}

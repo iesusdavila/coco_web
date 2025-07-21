@@ -1,0 +1,106 @@
+@media (max-width: 1200px) {
+    .site-header {
+        justify-content: center;
+    }
+
+    .fav-poses {
+        width: 70%;
+    }
+
+    .fav-poses {
+        position: absolute; 
+        top: 110px;
+        z-index: 9999; 
+        overflow-y: auto; 
+        background: rgb(62, 64, 79);
+        border-radius: 15px;
+        border: 2px solid rgba(146, 31, 219, 0.81);
+        box-shadow: 2px 2px 10px rgba(33, 150, 243, 0.4);
+    }
+
+}
+
+@media (max-width: 911px) {
+    .fav-poses {
+        top: 150px;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+        margin: 10px;
+    }
+    
+    .controls {
+        grid-template-columns: 1fr;
+    }
+
+    .site-header {
+        justify-content: center;
+    }
+    
+    .button-group {
+        flex-direction: column;
+    }
+
+    .timer {
+        width: 95%;
+        padding: 20px 5px;
+    }
+
+    .timer label {
+        padding-left: 15px;
+    }
+
+    .fav-poses {
+        width: 70%;
+    }
+
+    .footer {
+        padding: 30px 15px 15px;
+    }
+    
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .footer-section {
+        padding: 20px;
+    }
+    
+    .social-links {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .contact-info {
+        align-items: center;
+    }
+}
+
+@media (max-width: 498px) {
+    .fav-poses {
+        top: 200px;
+    }
+
+    .footer-section h3 {
+        font-size: 1.2em;
+        text-align: center;
+    }
+    
+    .footer-links {
+        text-align: center;
+    }
+    
+    .contact-item {
+        justify-content: center;
+    }
+    
+    .social-link {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+}

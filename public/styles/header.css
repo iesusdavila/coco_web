@@ -1,0 +1,122 @@
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding-top: 20px;
+    background: linear-gradient(160deg, #2b2e3e 0%, #140622 100%);
+    min-height: 100vh;
+    color: white;
+}
+
+.main-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+    overflow: auto;
+    flex-direction: row;
+}
+
+.btn-menu {
+    display: flex;
+    align-items: center;
+}
+
+.menu-icon {
+    cursor: pointer;
+}
+
+.close-icon {
+    cursor: pointer;
+    display: none;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 30px;
+    border-radius: 15px 0 0 15px;
+    backdrop-filter: blur(10px);
+}
+
+.site-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    align-content: center;
+    overflow: auto;
+    flex-direction: row;
+}
+
+h1 {
+    text-align: center;
+    margin: 0px;
+    font-size: 2.5em;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.button-group-header {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    overflow: auto;
+    flex-direction: row;
+    margin-left: 30px;
+}
+
+.btn-header {
+    padding: 12px 24px;
+    background: linear-gradient(45deg, #1D152C, #292b3c);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgb(58, 56, 74);
+}
+
+.btn-header:hover {
+    transform: translateY(-0.5px);
+    box-shadow: 0 6px 20px rgba(58, 56, 74, 0.4);
+    background: linear-gradient(135deg, #1D152C, #292b3c);
+}
+
+.btn-header:active {
+    transform: translateY(0);
+}
+
+.status {
+    text-align: center;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.status.connected {
+    color: #1BEE23;
+}
+
+.status.disconnected {
+    color: #F44336;
+}
+
+.status::before {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.status.connected::before {
+    background: #1BEE23;
+}
+
+.status.disconnected::before {
+    background: #F44336;
+}
